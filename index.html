@@ -1611,13 +1611,19 @@ function setProgress(pId,bId,pct) { document.getElementById(pId).style.display="
 function buildFilename(sub,wk,ln) { var abbr={"Mathematics":"Maths","English":"English","Science":"Science","Social Studies":"SocSt","H.PE":"HPE","Creative Arts":"Arts"}[sub]||sub; return abbr+"_WK"+(wk||"?")+"_"+(ln||"1"); }
 
 async function callAPI(key,prompt,maxTokens) {
-  var resp = await fetch("/api/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens||2000,messages:[{role:"user",content:prompt}]})
-  });
+  var resp;
+  try {
+    resp = await fetch("/api/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01"},
+      body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:maxTokens||2000,messages:[{role:"user",content:prompt}]})
+    });
+  } catch(fetchErr) {
+    throw new Error("Network error — make sure the app is running on Railway (not opened as a local file). Details: " + fetchErr.message);
+  }
   var data = await resp.json();
-  if(data.error) throw new Error(data.error.message);
+  if(data.error) throw new Error("API error: " + data.error.message + " (status " + resp.status + ")");
+  if(!data.content) throw new Error("Unexpected response from API (status " + resp.status + "): " + JSON.stringify(data).slice(0,200));
   var text = data.content.map(function(b){return b.text||"";}).join("").trim();
   text = text.replace(/^```json\s*/,"").replace(/\s*```$/,"").trim();
   return JSON.parse(text);
