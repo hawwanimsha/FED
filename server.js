@@ -5,6 +5,8 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3579;
 
+console.log('Server starting on port', PORT);
+
 function proxyAnthropic(req, res) {
   let body = '';
   req.on('data', chunk => body += chunk);
@@ -28,6 +30,7 @@ function proxyAnthropic(req, res) {
       apiRes.pipe(res);
     });
     proxy.on('error', e => {
+      console.error('Proxy error:', e.message);
       res.writeHead(502, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: { message: e.message } }));
     });
@@ -36,21 +39,36 @@ function proxyAnthropic(req, res) {
   });
 }
 
+const MIME = {
+  '.html': 'text/html',
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.json': 'application/json',
+  '.txt': 'text/plain'
+};
+
 function serveStatic(req, res) {
-  const safePath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
-  const filePath = path.join(__dirname, safePath);
+  const urlPath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
+  const filePath = path.join(__dirname, urlPath);
+
+  // Security: prevent path traversal
   if (!filePath.startsWith(__dirname)) {
-    res.writeHead(403); res.end(); return;
+    res.writeHead(403); res.end('Forbidden'); return;
   }
-  fs.readFile(filePath, (err, data) => {
-    if (err) { res.writeHead(404); res.end('Not found'); return; }
-    const ext = path.extname(filePath);
-    const types = {
-      '.html': 'text/html', '.js': 'application/javascript',
-      '.css': 'text/css', '.png': 'image/png', '.json': 'application/json'
-    };
-    res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream' });
-    res.end(data);
+
+  fs.stat(filePath, (err, stat) => {
+    if (err || !stat.isFile()) {
+      res.writeHead(404); res.end('Not found'); return;
+    }
+    const ext = path.extname(filePath).toLowerCase();
+    res.writeHead(200, {
+      'Content-Type': MIME[ext] || 'application/octet-stream',
+      'Content-Length': stat.size
+    });
+    // Stream the file instead of loading into memory
+    fs.createReadStream(filePath).pipe(res);
   });
 }
 
@@ -69,6 +87,11 @@ const server = http.createServer((req, res) => {
   serveStatic(req, res);
 });
 
+server.on('error', e => {
+  console.error('Server error:', e.message);
+  process.exit(1);
+});
+
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Seenu Atoll School Lesson Planner running on port ${PORT}`);
+  console.log('Seenu Atoll School Lesson Planner running on port ' + PORT);
 });
