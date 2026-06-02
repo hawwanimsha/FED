@@ -3,9 +3,13 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = process.env.PORT || 3579;
+// Railway injects PORT - we MUST use it
+const PORT = parseInt(process.env.PORT) || 3579;
 
-console.log('Server starting on port', PORT);
+console.log('=== Seenu Atoll School Lesson Planner ===');
+console.log('NODE_ENV:', process.env.NODE_ENV || 'not set');
+console.log('PORT env var:', process.env.PORT || 'not set, using 3579');
+console.log('Listening on port:', PORT);
 
 function proxyAnthropic(req, res) {
   let body = '';
@@ -40,26 +44,23 @@ function proxyAnthropic(req, res) {
 }
 
 const MIME = {
-  '.html': 'text/html',
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
+  '.html': 'text/html; charset=utf-8',
+  '.js':   'application/javascript',
+  '.css':  'text/css',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
   '.json': 'application/json',
-  '.txt': 'text/plain'
+  '.txt':  'text/plain'
 };
 
 function serveStatic(req, res) {
   const urlPath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
   const filePath = path.join(__dirname, urlPath);
-
-  // Security: prevent path traversal
   if (!filePath.startsWith(__dirname)) {
     res.writeHead(403); res.end('Forbidden'); return;
   }
-
-  fs.stat(filePath, (err, stat) => {
-    if (err || !stat.isFile()) {
+  fs.stat(filePath, (statErr, stat) => {
+    if (statErr || !stat.isFile()) {
       res.writeHead(404); res.end('Not found'); return;
     }
     const ext = path.extname(filePath).toLowerCase();
@@ -67,7 +68,6 @@ function serveStatic(req, res) {
       'Content-Type': MIME[ext] || 'application/octet-stream',
       'Content-Length': stat.size
     });
-    // Stream the file instead of loading into memory
     fs.createReadStream(filePath).pipe(res);
   });
 }
@@ -79,19 +79,21 @@ const server = http.createServer((req, res) => {
       'Access-Control-Allow-Headers': 'Content-Type, x-api-key, anthropic-version',
       'Access-Control-Allow-Methods': 'POST, GET, OPTIONS'
     });
-    res.end(); return;
+    res.end();
+    return;
   }
   if (req.method === 'POST' && req.url === '/api/messages') {
-    proxyAnthropic(req, res); return;
+    proxyAnthropic(req, res);
+    return;
   }
   serveStatic(req, res);
 });
 
 server.on('error', e => {
-  console.error('Server error:', e.message);
+  console.error('FATAL server error:', e.code, e.message);
   process.exit(1);
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log('Seenu Atoll School Lesson Planner running on port ' + PORT);
+  console.log('Server ready at http://0.0.0.0:' + PORT);
 });

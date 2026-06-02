@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Seenu Atoll School — Lesson Planner</title>
+<title>Hiyaa</title>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 <style>
 
@@ -353,10 +353,9 @@ body::before {
 <body>
 <div class="nav">
   <div class="nav-logo">
-    <img id="logo-img" alt="">
     <div>
-      <div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#fff;letter-spacing:.02em;">Seenu Atoll School</div>
-      <div style="font-size:9px;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;margin-top:1px;">Lesson Planner 2026</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff;letter-spacing:.06em;">Hiyaa</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;margin-top:1px;">Lesson Planner &mdash; 2026</div>
     </div>
   </div>
   <div class="tab on" data-page="generate">✏️ Lesson Plan</div>
@@ -1631,7 +1630,7 @@ async function callAPI(key,prompt,maxTokens) {
 
 document.addEventListener("DOMContentLoaded", function() {
   // Logo
-  document.getElementById("logo-img").src = "school_logo.png";
+  // logo removed
 
   // Sync API key across inputs
   var savedKey = localStorage.getItem("sas_key")||"";
@@ -1789,7 +1788,7 @@ async function doGenerate() {
   setStatus("gen-status","loading","<span class='spin'></span> Generating...");
   setProgress("gen-prog","gen-bar",20);
 
-  var prompt="You are an expert primary school teacher at Seenu Atoll School, Maldives.\n\n"
+  var prompt="You are an expert primary school teacher at Hiyaa, Maldives.\n\n"
     +"Grade: "+grade+" | Subject: "+currentSub+" | Duration: "+dur+" mins\n"
     +"Week: "+(wk||"?")+", Date: "+(date||"?")+", Lesson ID: "+fname+"\n"
     +"Strand: "+strand+" | Sub-strand: "+substrand+"\n"
@@ -1912,7 +1911,7 @@ async function doReportCard() {
   setStatus("rc-status","loading","<span class='spin'></span> Generating...");
   setProgress("rc-prog","rc-bar",30);
   try {
-    var prompt="Write 3 "+tone+" report card comment variations for a "+grade+" "+sub+" student at Seenu Atoll School.\nStudent: "+name+" (pronouns: "+pro+")\nPerformance: "+level+"\n"+(strengths?"Strengths: "+strengths+"\n":"")+(improve?"Improve: "+improve+"\n":"")+(notes?"Context: "+notes+"\n":"")
+    var prompt="Write 3 "+tone+" report card comment variations for a "+grade+" "+sub+" student at Hiyaa.\nStudent: "+name+" (pronouns: "+pro+")\nPerformance: "+level+"\n"+(strengths?"Strengths: "+strengths+"\n":"")+(improve?"Improve: "+improve+"\n":"")+(notes?"Context: "+notes+"\n":"")
     +"\nEach: 2-4 sentences, professional, specific, use student name & correct pronouns, include academic reference and forward-looking statement.\nRespond ONLY with valid JSON: {\"comments\":[\"comment1\",\"comment2\",\"comment3\"]}";
     var res=await callAPI(key,prompt,800);
     setProgress("rc-prog","rc-bar",100);
@@ -2124,7 +2123,7 @@ async function buildDocx(p) {
       properties:{page:{size:{width:15840,height:12240},margin:{top:360,right:360,bottom:360,left:360}}},
       children:[
         new Table({width:{size:TW,type:WidthType.DXA},columnWidths:[1766,2085,1395,1800,1635,1785],rows:[
-          new TableRow({height:{value:460,rule:"exact"},children:[TC([Pr([new ImageRun({data:logoBytes,transformation:{width:51,height:32},type:"png",floating:{horizontalPosition:{relative:"column",offset:5692775},verticalPosition:{relative:"paragraph",offset:52070},wrap:{type:"square",side:"bothSides"},margins:{top:114300,bottom:114300,left:114300,right:114300}}}),R("Seenu Atoll School",{font:"Impact",size:30})]),TP("S. Meedhoo, Addu",{font:"Gill Sans",size:20})],{w:TW,span:6})]}),
+          new TableRow({height:{value:460,rule:"exact"},children:[TC([Pr([new ImageRun({data:logoBytes,transformation:{width:51,height:32},type:"png",floating:{horizontalPosition:{relative:"column",offset:5692775},verticalPosition:{relative:"paragraph",offset:52070},wrap:{type:"square",side:"bothSides"},margins:{top:114300,bottom:114300,left:114300,right:114300}}}),R("Hiyaa",{font:"Impact",size:30})]),TP("S. Meedhoo, Addu",{font:"Gill Sans",size:20})],{w:TW,span:6})]}),
           new TableRow({height:{value:460,rule:"exact"},children:[TC(BP("Lesson Plan -2026",{font:"Arial Black",size:26,align:AlignmentType.CENTER}),{w:TW,span:6})]}),
           new TableRow({children:[HC("Week",1766),VC(p.week,2085),HC("Date",1395),VC(p.date,1800),HC("Duration",1635),VC((p.duration||"35")+" mins",1785)]}),
           new TableRow({children:[HC("Subject",1766),VC(p.subject,2085),HC("Class",1395),VC(p.grade,1800,1,WHITE),HC("Lesson No.",1635),VC(p.lessonNo,1785)]}),
