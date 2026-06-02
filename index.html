@@ -2136,8 +2136,7 @@ function renderHistory(){
 }
 function dlFromHist(ts){var h=getHist();var e=h.find(function(x){return x.ts==ts;});if(e&&e.b64)dlBlob(e.b64,e.fname||"lesson");}
 function delHist(i){var h=getHist();h.splice(i,1);localStorage.setItem("sas_h",JSON.stringify(h));renderHistory();renderWeekly();}
-function doClearHistory(){if(confirm("Clear all history?")){localStorage.removeItem("sas_h");renderHistory();renderWeekly();}}
-</script>
+
 // =====================================================================
 // SERVER KEY CHECK
 // =====================================================================
@@ -2374,6 +2373,8 @@ function buildTemplatePromptSection() {
     + 'Fill in the template sections with appropriate content. Keep section headings exactly as in the template.\n';
 }
 
+function doClearHistory(){if(confirm("Clear all history?")){localStorage.removeItem("sas_h");renderHistory();renderWeekly();}}
+</script>
 <script>
 async function buildDocx(p) {
   var _d=docx;
