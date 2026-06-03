@@ -1,0 +1,7 @@
+node_modules/
+*.log
+.env
+logo_b64.txt
+START_WINDOWS.bat
+START_MAC.sh
+README.txt

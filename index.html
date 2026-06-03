@@ -340,6 +340,71 @@ body::before {
 .copy-btn { background: none; border: 1.5px solid var(--ocean-light); color: var(--ocean-mid); border-radius: 6px; padding: 5px 12px; font-size: 11px; cursor: pointer; margin-top: 8px; font-family: 'Nunito', sans-serif; font-weight: 700; transition: all .15s; }
 .copy-btn:hover { background: var(--ocean-pale); }
 
+
+/* ── AUTH OVERLAY ──────────────────────────────────────────────── */
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: linear-gradient(135deg, var(--ocean-deep) 0%, #0d3d4d 40%, #1a2e42 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.auth-box {
+  background: var(--ivory); border-radius: 18px;
+  padding: 36px 32px; width: 100%; max-width: 420px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.4);
+  animation: fadeUp .4s ease;
+}
+.auth-logo {
+  text-align: center; margin-bottom: 28px;
+}
+.auth-logo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-weight: 700;
+  color: var(--ocean-deep); letter-spacing: .04em;
+}
+.auth-logo p {
+  font-size: 13px; color: var(--text-mid); margin-top: 4px;
+}
+.auth-tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; margin-bottom: 24px;
+  border: 1.5px solid var(--sand-dark); border-radius: 10px; overflow: hidden;
+}
+.auth-tab {
+  padding: 10px; text-align: center; font-size: 13px;
+  font-weight: 800; cursor: pointer; color: var(--text-mid);
+  background: var(--sand); transition: all .15s;
+}
+.auth-tab.on { background: var(--ocean-deep); color: #fff; }
+.auth-field { margin-bottom: 14px; }
+.auth-field label { display: block; font-size: 10px; font-weight: 800; color: var(--ocean-mid); text-transform: uppercase; letter-spacing: .09em; margin-bottom: 5px; }
+.auth-field input { width: 100%; border: 1.5px solid var(--sand-dark); border-radius: 8px; padding: 11px 13px; font-size: 14px; font-family: 'Nunito', sans-serif; color: var(--text-dark); background: #fff; transition: border-color .2s; }
+.auth-field input:focus { outline: none; border-color: var(--ocean-light); box-shadow: 0 0 0 3px rgba(47,170,184,.12); }
+.auth-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid)); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; margin-top: 4px; transition: filter .15s, transform .15s; }
+.auth-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.auth-btn:disabled { background: #b0c4cc; cursor: not-allowed; transform: none; }
+.auth-err { background: var(--coral-light); border: 1px solid rgba(232,98,74,.4); color: #8a2a1a; border-radius: 8px; padding: 10px 13px; font-size: 13px; font-weight: 600; margin-bottom: 14px; display: none; }
+.auth-demo { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-light); }
+.auth-demo a { color: var(--ocean-mid); cursor: pointer; font-weight: 700; text-decoration: none; }
+
+/* ── USER BAR ──────────────────────────────────────────────────── */
+.user-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-left: auto; flex-shrink: 0; padding-right: 4px;
+}
+.user-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--ocean-light), var(--coral));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.user-name { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.9); white-space: nowrap; }
+.user-plan { font-size: 10px; color: rgba(255,255,255,.55); white-space: nowrap; }
+.usage-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: rgba(255,255,255,.15); color: rgba(255,255,255,.8); white-space: nowrap; }
+.usage-pill.warn { background: rgba(232,98,74,.4); color: #ffd0c0; }
+.logout-btn { font-size: 11px; color: rgba(255,255,255,.5); cursor: pointer; padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,.15); background: none; font-family: 'Nunito', sans-serif; transition: all .15s; }
+.logout-btn:hover { color: #fff; border-color: rgba(255,255,255,.4); }
+
 /* ── RESPONSIVE ────────────────────────────────────────────────── */
 /* ── TEMPLATE UPLOAD ───────────────────────────────────────────── */
 #upload-area:hover { border-color: var(--coral) !important; background: #fff5f3 !important; }
@@ -372,6 +437,47 @@ body::before {
   <div class="tab" data-page="calendar">🌊 Calendar</div>
   <div class="tab" data-page="templates">📄 Templates</div>
   <div class="tab" data-page="history">📂 History</div>
+  <!-- User bar (shown when logged in) -->
+  <div class="user-bar" id="user-bar" style="display:none;">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div>
+      <div class="user-name" id="user-name-display">-</div>
+      <div class="user-plan" id="user-plan-display">free</div>
+    </div>
+    <div class="usage-pill" id="usage-pill">0/10</div>
+    <button class="logout-btn" onclick="doLogout()">Sign out</button>
+  </div>
+</div>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <h1>🏝 Hiyaa</h1>
+      <p>AI-Powered Lesson Planner for Maldivian Teachers</p>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab on" id="tab-login" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</div>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+    <!-- Login form -->
+    <div id="form-login">
+      <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="login-pass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+    </div>
+    <!-- Register form -->
+    <div id="form-register" style="display:none;">
+      <div class="auth-field"><label>Full Name</label><input type="text" id="reg-name" placeholder="Your name"></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="reg-pass" placeholder="Min. 6 characters"></div>
+      <button class="auth-btn" id="reg-btn" onclick="doRegister()">Create Account</button>
+    </div>
+    <div class="auth-demo">
+      Try demo account: &nbsp;<a onclick="useDemoAccount()">demo@hiyaa.mv / demo123</a>
+    </div>
+  </div>
 </div>
 
 <!-- GENERATE -->
@@ -1762,6 +1868,7 @@ document.addEventListener("DOMContentLoaded", function() {
   checkServerKey();
   loadSavedTemplate();
   renderSavedTemplates();
+  checkAuth();
 });
 
 function populateWeeks() {
@@ -1906,6 +2013,14 @@ async function doGenerate() {
     setProgress("gen-prog","gen-bar",100);
     setStatus("gen-status","done","&#10003; Done! <a class='dl-btn' href='"+url+"' download='"+fname+".docx'>&#8681; Download "+fname+".docx</a>");
     renderHistory(); renderWeekly();
+    // Refresh user usage count
+    var token = localStorage.getItem('hiyaa_token');
+    if (token) {
+      try {
+        var meResp = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (meResp.ok) { var meData = await meResp.json(); currentUser = meData.user; updateUserBar(); }
+      } catch(e2) {}
+    }
   } catch(e) {
     setStatus("gen-status","error","&#9888; Error: "+e.message);
   }
@@ -2137,6 +2252,143 @@ function renderHistory(){
 function dlFromHist(ts){var h=getHist();var e=h.find(function(x){return x.ts==ts;});if(e&&e.b64)dlBlob(e.b64,e.fname||"lesson");}
 function delHist(i){var h=getHist();h.splice(i,1);localStorage.setItem("sas_h",JSON.stringify(h));renderHistory();renderWeekly();}
 
+
+// =====================================================================
+// AUTH SYSTEM
+// =====================================================================
+var currentUser = null;
+
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('on', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('on', tab === 'register');
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('auth-err').style.display = 'none';
+}
+
+function showAuthError(msg) {
+  var el = document.getElementById('auth-err');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function doLogin() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAuthError('Please enter your email and password.'); return; }
+  var btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    var resp = await fetch('/api/auth/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password: pass })
+    });
+    var data = await resp.json();
+    if (!resp.ok) { showAuthError(data.error || 'Login failed'); return; }
+    onAuthSuccess(data.token, data.user);
+  } catch(e) { showAuthError('Connection error. Please try again.'); }
+  btn.disabled = false; btn.textContent = 'Sign In';
+}
+
+async function doRegister() {
+  var name = document.getElementById('reg-name').value.trim();
+  var email = document.getElementById('reg-email').value.trim();
+  var pass = document.getElementById('reg-pass').value;
+  if (!name || !email || !pass) { showAuthError('Please fill in all fields.'); return; }
+  if (pass.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+  var btn = document.getElementById('reg-btn');
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  try {
+    var resp = await fetch('/api/auth/register', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, email, password: pass })
+    });
+    var data = await resp.json();
+    if (!resp.ok) { showAuthError(data.error || 'Registration failed'); return; }
+    onAuthSuccess(data.token, data.user);
+  } catch(e) { showAuthError('Connection error. Please try again.'); }
+  btn.disabled = false; btn.textContent = 'Create Account';
+}
+
+function useDemoAccount() {
+  document.getElementById('login-email').value = 'demo@hiyaa.mv';
+  document.getElementById('login-pass').value = 'demo123';
+  switchAuthTab('login');
+  doLogin();
+}
+
+function onAuthSuccess(token, user) {
+  currentUser = user;
+  localStorage.setItem('hiyaa_token', token);
+  localStorage.setItem('hiyaa_user', JSON.stringify(user));
+  document.getElementById('auth-overlay').style.display = 'none';
+  updateUserBar();
+}
+
+function updateUserBar() {
+  if (!currentUser) return;
+  var bar = document.getElementById('user-bar');
+  bar.style.display = 'flex';
+  document.getElementById('user-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('user-name-display').textContent = currentUser.name;
+  document.getElementById('user-plan-display').textContent = currentUser.plan === 'pro' ? '⭐ Pro' : 'Free plan';
+  var usage = currentUser.usage || 0;
+  var limit = currentUser.limit || 10;
+  var pill = document.getElementById('usage-pill');
+  pill.textContent = usage + '/' + limit + ' plans';
+  pill.className = 'usage-pill' + (usage >= limit * 0.8 ? ' warn' : '');
+}
+
+async function doLogout() {
+  var token = localStorage.getItem('hiyaa_token');
+  if (token) {
+    try { await fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }); } catch(e) {}
+  }
+  currentUser = null;
+  localStorage.removeItem('hiyaa_token');
+  localStorage.removeItem('hiyaa_user');
+  document.getElementById('user-bar').style.display = 'none';
+  document.getElementById('auth-overlay').style.display = 'flex';
+}
+
+async function checkAuth() {
+  var token = localStorage.getItem('hiyaa_token');
+  var savedUser = localStorage.getItem('hiyaa_user');
+  if (!token) {
+    // Show auth overlay
+    document.getElementById('auth-overlay').style.display = 'flex';
+    return;
+  }
+  // Verify token is still valid
+  try {
+    var resp = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (resp.ok) {
+      var data = await resp.json();
+      currentUser = data.user;
+      localStorage.setItem('hiyaa_user', JSON.stringify(currentUser));
+      document.getElementById('auth-overlay').style.display = 'none';
+      updateUserBar();
+    } else {
+      // Token expired
+      localStorage.removeItem('hiyaa_token');
+      localStorage.removeItem('hiyaa_user');
+      document.getElementById('auth-overlay').style.display = 'flex';
+    }
+  } catch(e) {
+    // Server unreachable — show cached user if available
+    if (savedUser) {
+      try {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('auth-overlay').style.display = 'none';
+        updateUserBar();
+      } catch(e2) {
+        document.getElementById('auth-overlay').style.display = 'flex';
+      }
+    } else {
+      document.getElementById('auth-overlay').style.display = 'flex';
+    }
+  }
+}
+
 // =====================================================================
 // SERVER KEY CHECK
 // =====================================================================
@@ -2331,6 +2583,9 @@ function renderSavedTemplates() {
 // =====================================================================
 async function callAPI(key, prompt, maxTokens) {
   var headers = { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' };
+  // Send auth token if logged in
+  var token = localStorage.getItem('hiyaa_token');
+  if (token) headers['Authorization'] = 'Bearer ' + token;
   // Only send key header if not using server key
   if (!serverHasKey && key) headers['x-api-key'] = key;
 
