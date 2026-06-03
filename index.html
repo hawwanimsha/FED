@@ -484,8 +484,8 @@ body::before {
 <div class="page on" id="page-generate">
 <div class="card">
   <div class="card-title">Generate Lesson Plan</div>
-  <div id="api-key-row" class="apirow"><label>API Key</label><input type="password" id="api-key" placeholder="sk-ant-api03-..."><a href="https://console.anthropic.com/settings/keys" target="_blank">Get key &#8599;</a></div>
-  <div id="server-key-notice" style="display:none;" class="api-key-row">🔑 API key configured on server — no key needed. Just click Generate!</div>
+  <div id="api-key-row" class="apirow" style="display:none;"><label>API Key</label><input type="password" id="api-key" placeholder="sk-ant-api03-..."><a href="https://console.anthropic.com/settings/keys" target="_blank">Get key &#8599;</a></div>
+  <div id="server-key-notice" class="api-key-row" style="display:none;">🔑 API key configured — ready to generate!</div>
   <div class="stabs">
     <div class="stab on" data-sub="Mathematics">Mathematics</div>
     <div class="stab" data-sub="English">English</div>
@@ -509,6 +509,10 @@ body::before {
     <div class="field"><label>Outcome Code</label><select id="f-outcode"><option value="">--</option></select></div>
   </div>
   <div class="field"><label>Outcome Statement</label><textarea id="f-outstmt" rows="2" readonly style="background:#f5f5f5;color:#555;"></textarea></div>
+  <div class="g2">
+    <div class="field"><label>School Name</label><input type="text" id="f-school" placeholder="e.g. Seenu Atoll School" value=""></div>
+    <div class="field"><label>School Address</label><input type="text" id="f-address" placeholder="e.g. S. Meedhoo, Addu City"></div>
+  </div>
   <div id="active-tpl-banner" style="display:none;background:var(--ocean-pale);border:1px solid rgba(47,170,184,.3);border-radius:8px;padding:9px 14px;margin-bottom:12px;font-size:12px;color:var(--ocean-deep);font-weight:700;">
     📄 Template active: <span id="active-tpl-name"></span> &nbsp;<a href="#" onclick="showPage2('templates');return false;" style="color:var(--coral);font-size:11px;">Change</a>
   </div>
@@ -1967,44 +1971,78 @@ async function doGenerate() {
   setStatus("gen-status","loading","<span class='spin'></span> Generating...");
   setProgress("gen-prog","gen-bar",20);
 
-  var templateSection = buildTemplatePromptSection();
-  var prompt="You are an expert primary school teacher at Hiyaa, Maldives.\n\n"
-    +"Grade: "+grade+" | Subject: "+currentSub+" | Duration: "+dur+" mins\n"
-    +"Week: "+(wk||"?")+", Date: "+(date||"?")+", Lesson ID: "+fname+"\n"
-    +"Strand: "+strand+" | Sub-strand: "+substrand+"\n"
-    +"Outcome Code: "+outCode+"\nOutcome: "+outStmt+"\n"
-    +"Topic: "+topic+"\nIndicators:\n"+inds.join("\n")+"\n"
-    +(activities?"Activity ideas: "+activities+"\n":"")
-    +"\nIMPORTANT:\n"
-    +"- Concise bullet points only — NO long paragraphs\n"
-    +"- Activities must be research-backed and developmentally appropriate for "+grade+"\n"
-    +"- Apply Bloom's Taxonomy progression (lower to higher order)\n"
-    +"- Reference Maldivian contexts (atolls, islands, fishing, MVR currency, Islam)\n"
-    +"- Worksheet must have 3 differentiation levels aligned to Bloom's levels\n"
-    +"\nRespond ONLY with valid JSON:\n"
-    +'{"lessonNo":"'+fname+'"'
-    +',"learningIntentions":["We are learning to ..."]'
-    +',"successCriteria":["I can ...","I can ..."]'
-    +',"keyCompetencies":["Thinking critically","Communicating"]'
-    +',"sharedValues":["Respect","Responsibility"]'
-    +',"priorKnowledge":["Students already know..."]'
-    +',"teachingAids":["Whiteboard","Worksheets"]'
-    +',"setInduction":{"activity":["Brief engaging hook — 1-2 bullets"]}'
-    +',"mainBody":{"successCriteria":["..."],"introduction":["2-3 bullets"],"explanation":["3-5 activity steps with Bloom level"]'
-    +',"level1":["2-3 Below average tasks (Remember/Understand)"]'
-    +',"level2":["2-3 Average tasks (Apply)"]'
-    +',"level3":["2-3 Above average tasks (Analyze/Create)"]'
-    +',"assessment":["Observation","Exit ticket"]}'
-    +',"closure":{"teacherActivity":["Summarise key points"],"studentActivity":["Students share one thing learned"]}'
-    +',"learningOutcomes":["'+outStmt.replace(/"/g,"'")+'"]}' + templateSection;
+  var hasTemplate = !!activeTemplate;
+  var prompt;
+  if (hasTemplate) {
+    prompt = "You are an expert primary school teacher. Fill in ALL fields of this lesson plan template.\n\n"
+      +"Lesson details:\n"
+      +"Grade: "+grade+" | Subject: "+currentSub+" | Duration: "+dur+" mins\n"
+      +"Week: "+(wk||"?")+" | Date: "+(date||"?")+" | Lesson ID: "+fname+"\n"
+      +"Strand: "+strand+" | Sub-strand: "+substrand+"\n"
+      +"Outcome Code: "+outCode+" | Outcome: "+outStmt+"\n"
+      +"Topic: "+topic+"\n"
+      +"Indicators: "+inds.join("; ")+"\n"
+      +(activities?"Activity ideas: "+activities+"\n":"")
+      +"\nFill every blank section. Use Bloom\'s Taxonomy, Maldivian contexts, 3 differentiation levels.\n"
+      +"\nRespond ONLY with valid JSON (no markdown):\n"
+      +'{"lessonNo":"'+fname+'"'
+      +',"learningIntentions":["We are learning to [specific objective based on outcome]"]'
+      +',"successCriteria":["I can [specific criterion 1]","I can [criterion 2]"]'
+      +',"keyCompetencies":["Thinking critically","Communicating effectively"]'
+      +',"sharedValues":["Respect","Responsibility"]'
+      +',"priorKnowledge":["[What students already know related to this topic]"]'
+      +',"teachingAids":["Whiteboard","Worksheets","[other relevant aids]"]'
+      +',"setInduction":{"activity":["[Engaging hook activity - 2-3 sentences]"]}'
+      +',"mainBody":{"successCriteria":["[Main success criterion]"]'
+      +',"introduction":["[Step 1: introduce concept]","[Step 2: explain with example]"]'
+      +',"explanation":["[Main teaching activity with Bloom level]","[Student practice activity]","[Guided practice]"]'
+      +',"level1":["[Below average task - Remember/Understand level]","[Scaffolded support activity]"]'
+      +',"level2":["[Average task - Apply level]","[Independent practice]"]'
+      +',"level3":["[Above average task - Analyze/Create level]","[Extension challenge]"]'
+      +',"assessment":["Teacher observation","Exit ticket","Mini whiteboard check"]}'
+      +',"closure":{"teacherActivity":["Summarise key learning points","Address misconceptions"]'
+      +',"studentActivity":["Students share one thing they learned today"]}'
+      +',"learningOutcomes":["'+outStmt.replace(/"/g,"'")+'"]}'
+      ;
+  } else {
+    prompt = "You are an expert primary school teacher at Hiyaa, Maldives.\n\n"
+      +"Grade: "+grade+" | Subject: "+currentSub+" | Duration: "+dur+" mins\n"
+      +"Week: "+(wk||"?")+", Date: "+(date||"?")+", Lesson ID: "+fname+"\n"
+      +"Strand: "+strand+" | Sub-strand: "+substrand+"\n"
+      +"Outcome Code: "+outCode+"\nOutcome: "+outStmt+"\n"
+      +"Topic: "+topic+"\nIndicators:\n"+inds.join("\n")+"\n"
+      +(activities?"Activity ideas: "+activities+"\n":"")
+      +"\nIMPORTANT:\n"
+      +"- Concise bullet points only\n"
+      +"- Research-backed activities for "+grade+"\n"
+      +"- Bloom\'s Taxonomy progression\n"
+      +"- Maldivian contexts (atolls, fishing, MVR, Islam)\n"
+      +"- 3 differentiation levels\n"
+      +'\nRespond ONLY with valid JSON:\n{"lessonNo":"'+fname+'"'
+      +',"learningIntentions":["We are learning to ..."]'
+      +',"successCriteria":["I can ...","I can ..."]'
+      +',"keyCompetencies":["Thinking critically","Communicating"]'
+      +',"sharedValues":["Respect","Responsibility"]'
+      +',"priorKnowledge":["Students already know..."]'
+      +',"teachingAids":["Whiteboard","Worksheets"]'
+      +',"setInduction":{"activity":["Brief engaging hook"]}'
+      +',"mainBody":{"successCriteria":["..."],"introduction":["2-3 bullets"],"explanation":["3-5 activity steps"]'
+      +',"level1":["Below avg tasks"],"level2":["Average tasks"],"level3":["Above avg tasks"]'
+      +',"assessment":["Observation","Exit ticket"]}'
+      +',"closure":{"teacherActivity":["Summarise"],"studentActivity":["Reflect"]}'
+      +',"learningOutcomes":["'+outStmt.replace(/"/g,"'")+'"]}'
+      ;
+  }
 
   try {
     setProgress("gen-prog","gen-bar",50);
-    var plan=await callAPI(key,prompt,3000);
+    var plan=await callAPI(key,prompt, hasTemplate ? 4000 : 3000);
     plan.subject=currentSub; plan.grade=grade; plan.duration=dur;
     plan.week=wk; plan.lessonNo=fname; plan.date=date;
     plan.strand=strand; plan.substrand=substrand; plan.outcomeCode=outCode;
     plan.topic=topic; plan.indicators=inds;
+    plan.school=document.getElementById("f-school").value||"";
+    plan.schoolAddress=document.getElementById("f-address").value||"";
     setProgress("gen-prog","gen-bar",80);
     var blob=await buildDocx(plan);
     var b64=await blobToB64(blob);
@@ -2403,16 +2441,23 @@ async function checkServerKey() {
     var keyRow = document.getElementById('api-key-row');
     var notice = document.getElementById('server-key-notice');
     if (serverHasKey) {
+      // Server has key - hide API input everywhere
       if (keyRow) keyRow.style.display = 'none';
-      if (notice) notice.style.display = 'flex';
-      // Hide API key rows in other tabs too
+      if (notice) { notice.style.display = 'flex'; }
       ['cl-key','rc-key','as-key'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el && el.closest('.apirow')) el.closest('.apirow').style.display = 'none';
       });
+    } else {
+      // No server key - show the input field so user can enter their own
+      if (keyRow) keyRow.style.display = 'flex';
+      if (notice) notice.style.display = 'none';
     }
   } catch(e) {
-    console.log('Could not check server key:', e.message);
+    // If check fails, show input field as fallback
+    var keyRow = document.getElementById('api-key-row');
+    if (keyRow) keyRow.style.display = 'flex';
+    console.log('Key check failed:', e.message);
   }
 }
 
@@ -2688,8 +2733,8 @@ async function buildDocx(p) {
       properties:{page:{size:{width:15840,height:12240},margin:{top:360,right:360,bottom:360,left:360}}},
       children:[
         new Table({width:{size:TW,type:WidthType.DXA},columnWidths:[1766,2085,1395,1800,1635,1785],rows:[
-          new TableRow({height:{value:460,rule:"exact"},children:[TC([Pr([new ImageRun({data:logoBytes,transformation:{width:51,height:32},type:"png",floating:{horizontalPosition:{relative:"column",offset:5692775},verticalPosition:{relative:"paragraph",offset:52070},wrap:{type:"square",side:"bothSides"},margins:{top:114300,bottom:114300,left:114300,right:114300}}}),R("Hiyaa",{font:"Impact",size:30})]),TP("S. Meedhoo, Addu",{font:"Gill Sans",size:20})],{w:TW,span:6})]}),
-          new TableRow({height:{value:460,rule:"exact"},children:[TC(BP("Lesson Plan -2026",{font:"Arial Black",size:26,align:AlignmentType.CENTER}),{w:TW,span:6})]}),
+          new TableRow({height:{value:460,rule:"exact"},children:[TC([Pr([new ImageRun({data:logoBytes,transformation:{width:51,height:32},type:"png",floating:{horizontalPosition:{relative:"column",offset:5692775},verticalPosition:{relative:"paragraph",offset:52070},wrap:{type:"square",side:"bothSides"},margins:{top:114300,bottom:114300,left:114300,right:114300}}}),R(p.school||"School Name",{font:"Impact",size:30})]),TP(p.schoolAddress||"Maldives",{font:"Gill Sans",size:20})],{w:TW,span:6})]}),
+          new TableRow({height:{value:460,rule:"exact"},children:[TC(BP("Lesson Plan - "+new Date().getFullYear(),{font:"Arial Black",size:26,align:AlignmentType.CENTER}),{w:TW,span:6})]}),
           new TableRow({children:[HC("Week",1766),VC(p.week,2085),HC("Date",1395),VC(p.date,1800),HC("Duration",1635),VC((p.duration||"35")+" mins",1785)]}),
           new TableRow({children:[HC("Subject",1766),VC(p.subject,2085),HC("Class",1395),VC(p.grade,1800,1,WHITE),HC("Lesson No.",1635),VC(p.lessonNo,1785)]}),
           new TableRow({children:[HC("Topic",1766),TC(BP(p.topic||""),{w:6615,span:3}),HC("Outcome Code",1395),TC(BP(p.outcomeCode||""),{w:1785})]}),
