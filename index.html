@@ -2438,26 +2438,24 @@ async function checkServerKey() {
     var resp = await fetch('/api/has-key');
     var data = await resp.json();
     serverHasKey = data.hasKey;
-    var keyRow = document.getElementById('api-key-row');
-    var notice = document.getElementById('server-key-notice');
-    if (serverHasKey) {
-      // Server has key - hide API input everywhere
-      if (keyRow) keyRow.style.display = 'none';
-      if (notice) { notice.style.display = 'flex'; }
-      ['cl-key','rc-key','as-key'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el && el.closest('.apirow')) el.closest('.apirow').style.display = 'none';
-      });
-    } else {
-      // No server key - show the input field so user can enter their own
-      if (keyRow) keyRow.style.display = 'flex';
-      if (notice) notice.style.display = 'none';
-    }
   } catch(e) {
-    // If check fails, show input field as fallback
-    var keyRow = document.getElementById('api-key-row');
+    // Can't reach server - assume key is configured (safest default)
+    serverHasKey = true;
+    console.log('Key check error:', e.message);
+  }
+  var keyRow = document.getElementById('api-key-row');
+  var notice = document.getElementById('server-key-notice');
+  if (serverHasKey) {
+    if (keyRow) keyRow.style.display = 'none';
+    if (notice) notice.style.display = 'flex';
+    // Hide all other API key inputs
+    ['cl-key','rc-key','as-key'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.closest && el.closest('.apirow')) el.closest('.apirow').style.display = 'none';
+    });
+  } else {
     if (keyRow) keyRow.style.display = 'flex';
-    console.log('Key check failed:', e.message);
+    if (notice) notice.style.display = 'none';
   }
 }
 
