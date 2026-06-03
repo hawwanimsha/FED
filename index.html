@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hiyaa</title>
+<title>Boli</title>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 <style>
 
@@ -424,7 +424,7 @@ body::before {
 <div class="nav">
   <div class="nav-logo">
     <div>
-      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff;letter-spacing:.06em;">Hiyaa</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff;letter-spacing:.06em;">Boli</div>
       <div style="font-size:9px;color:rgba(255,255,255,.6);letter-spacing:.1em;text-transform:uppercase;margin-top:1px;">Lesson Planner &mdash; 2026</div>
     </div>
   </div>
@@ -453,7 +453,7 @@ body::before {
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-box">
     <div class="auth-logo">
-      <h1>🏝 Hiyaa</h1>
+      <h1>🏝 Boli</h1>
       <p>AI-Powered Lesson Planner for Maldivian Teachers</p>
     </div>
     <div class="auth-tabs">
@@ -1974,38 +1974,41 @@ async function doGenerate() {
   var hasTemplate = !!activeTemplate;
   var prompt;
   if (hasTemplate) {
-    prompt = "You are an expert primary school teacher. Fill in ALL fields of this lesson plan template.\n\n"
-      +"Lesson details:\n"
-      +"Grade: "+grade+" | Subject: "+currentSub+" | Duration: "+dur+" mins\n"
-      +"Week: "+(wk||"?")+" | Date: "+(date||"?")+" | Lesson ID: "+fname+"\n"
-      +"Strand: "+strand+" | Sub-strand: "+substrand+"\n"
-      +"Outcome Code: "+outCode+" | Outcome: "+outStmt+"\n"
-      +"Topic: "+topic+"\n"
-      +"Indicators: "+inds.join("; ")+"\n"
-      +(activities?"Activity ideas: "+activities+"\n":"")
-      +"\nFill every blank section. Use Bloom\'s Taxonomy, Maldivian contexts, 3 differentiation levels.\n"
-      +"\nRespond ONLY with valid JSON (no markdown):\n"
-      +'{"lessonNo":"'+fname+'"'
-      +',"learningIntentions":["We are learning to [specific objective based on outcome]"]'
-      +',"successCriteria":["I can [specific criterion 1]","I can [criterion 2]"]'
-      +',"keyCompetencies":["Thinking critically","Communicating effectively"]'
-      +',"sharedValues":["Respect","Responsibility"]'
-      +',"priorKnowledge":["[What students already know related to this topic]"]'
-      +',"teachingAids":["Whiteboard","Worksheets","[other relevant aids]"]'
-      +',"setInduction":{"activity":["[Engaging hook activity - 2-3 sentences]"]}'
-      +',"mainBody":{"successCriteria":["[Main success criterion]"]'
-      +',"introduction":["[Step 1: introduce concept]","[Step 2: explain with example]"]'
-      +',"explanation":["[Main teaching activity with Bloom level]","[Student practice activity]","[Guided practice]"]'
-      +',"level1":["[Below average task - Remember/Understand level]","[Scaffolded support activity]"]'
-      +',"level2":["[Average task - Apply level]","[Independent practice]"]'
-      +',"level3":["[Above average task - Analyze/Create level]","[Extension challenge]"]'
-      +',"assessment":["Teacher observation","Exit ticket","Mini whiteboard check"]}'
-      +',"closure":{"teacherActivity":["Summarise key learning points","Address misconceptions"]'
-      +',"studentActivity":["Students share one thing they learned today"]}'
-      +',"learningOutcomes":["'+outStmt.replace(/"/g,"'")+'"]}'
-      ;
-  } else {
-    prompt = "You are an expert primary school teacher at Hiyaa, Maldives.\n\n"
+    prompt = "You are an expert primary school teacher at Boli, Maldives.\n\n"
+      + "Create a COMPLETE, DETAILED lesson plan for:\n"
+      + "Grade: " + grade + " | Subject: " + currentSub + " | Duration: " + dur + " mins\n"
+      + "Week: " + (wk||"?") + " | Date: " + (date||"?") + " | Lesson ID: " + fname + "\n"
+      + "Strand: " + strand + " | Sub-strand: " + substrand + "\n"
+      + "Outcome Code: " + outCode + "\nOutcome: " + outStmt + "\n"
+      + "Topic: " + topic + "\nIndicators: " + inds.join("; ") + "\n"
+      + (activities ? "Activity ideas: " + activities + "\n" : "")
+      + "\nRules:\n"
+      + "1. Bloom Taxonomy: Remember/Understand to Apply/Analyze/Create\n"
+      + "2. Use Maldivian contexts (fishing, atolls, MVR currency, coral reefs)\n"
+      + "3. All 3 differentiation levels need 2-3 specific detailed tasks\n"
+      + "4. Be SPECIFIC - no placeholder text, real content in every field\n"
+      + "5. Activities must be research-backed and age-appropriate for " + grade + "\n"
+      + "\nReturn ONLY valid JSON, no markdown:\n"
+      + '{"lessonNo":"' + fname + '"'
+      + ',"learningIntentions":["We are learning to [specific objective based on ' + outCode + ']"]'
+      + ',"successCriteria":["I can [measurable criterion 1]","I can [criterion 2]","I can [criterion 3]"]'
+      + ',"keyCompetencies":["Reasoning and Problem Solving","Communicating effectively"]'
+      + ',"sharedValues":["Respect","Responsibility","Perseverance"]'
+      + ',"priorKnowledge":["[Specific prior knowledge]","[Related concept already known]"]'
+      + ',"teachingAids":["Whiteboard","Student worksheets","[Subject-specific resource]"]'
+      + ',"setInduction":{"activity":["[Specific engaging hook activity]","[Student response to hook]"]}'
+      + ',"mainBody":{"successCriteria":["[Key criterion for this lesson]"]'
+      + ',"introduction":["[Step 1: introduce with example]","[Step 2: guided explanation with Maldivian context]","[Step 3: check understanding]"]'
+      + ',"explanation":["[Main activity - detailed description]","[Student grouping and roles]","[Teacher role during activity]"]'
+      + ',"level1":["[Below avg - scaffolded task at Remember/Understand level]","[Support: word bank/visual aid/sentence starters]"]'
+      + ',"level2":["[Average - task requiring Apply level thinking]","[What students produce/demonstrate]"]'
+      + ',"level3":["[Above avg - Analyze/Evaluate/Create level task]","[Real-world application or creative challenge]"]'
+      + ',"assessment":["Teacher observation with checklist","Exit ticket: students write one thing learned","Mini whiteboard responses"]}'
+      + ',"closure":{"teacherActivity":["[Specific summary of key learning]","[Address common misconceptions]"]'
+      + ',"studentActivity":["[Think-pair-share or consolidation activity]","[How students demonstrate understanding]"]}'
+      + ',"learningOutcomes":["' + outStmt.replace(/"/g,"'") + '"]}';
+    } else {
+    prompt = "You are an expert primary school teacher at Boli, Maldives.\n\n"
       +"Grade: "+grade+" | Subject: "+currentSub+" | Duration: "+dur+" mins\n"
       +"Week: "+(wk||"?")+", Date: "+(date||"?")+", Lesson ID: "+fname+"\n"
       +"Strand: "+strand+" | Sub-strand: "+substrand+"\n"
@@ -2044,7 +2047,12 @@ async function doGenerate() {
     plan.school=document.getElementById("f-school").value||"";
     plan.schoolAddress=document.getElementById("f-address").value||"";
     setProgress("gen-prog","gen-bar",80);
-    var blob=await buildDocx(plan);
+    var blob;
+    if (hasTemplate && activeTemplate) {
+      blob = await buildDocxFromTemplate(plan, activeTemplate);
+    } else {
+      blob = await buildDocx(plan);
+    }
     var b64=await blobToB64(blob);
     saveHist({ts:Date.now(),sub:currentSub,grade:grade,wk:wk,fname:fname,topic:topic,date:date,b64:b64});
     var url=URL.createObjectURL(blob);
@@ -2052,7 +2060,7 @@ async function doGenerate() {
     setStatus("gen-status","done","&#10003; Done! <a class='dl-btn' href='"+url+"' download='"+fname+".docx'>&#8681; Download "+fname+".docx</a>");
     renderHistory(); renderWeekly();
     // Refresh user usage count
-    var token = localStorage.getItem('hiyaa_token');
+    var token = localStorage.getItem('boli_token');
     if (token) {
       try {
         var meResp = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
@@ -2137,7 +2145,7 @@ async function doReportCard() {
   setStatus("rc-status","loading","<span class='spin'></span> Generating...");
   setProgress("rc-prog","rc-bar",30);
   try {
-    var prompt="Write 3 "+tone+" report card comment variations for a "+grade+" "+sub+" student at Hiyaa.\nStudent: "+name+" (pronouns: "+pro+")\nPerformance: "+level+"\n"+(strengths?"Strengths: "+strengths+"\n":"")+(improve?"Improve: "+improve+"\n":"")+(notes?"Context: "+notes+"\n":"")
+    var prompt="Write 3 "+tone+" report card comment variations for a "+grade+" "+sub+" student at Boli.\nStudent: "+name+" (pronouns: "+pro+")\nPerformance: "+level+"\n"+(strengths?"Strengths: "+strengths+"\n":"")+(improve?"Improve: "+improve+"\n":"")+(notes?"Context: "+notes+"\n":"")
     +"\nEach: 2-4 sentences, professional, specific, use student name & correct pronouns, include academic reference and forward-looking statement.\nRespond ONLY with valid JSON: {\"comments\":[\"comment1\",\"comment2\",\"comment3\"]}";
     var res=await callAPI(key,prompt,800);
     setProgress("rc-prog","rc-bar",100);
@@ -2356,8 +2364,8 @@ function useDemoAccount() {
 
 function onAuthSuccess(token, user) {
   currentUser = user;
-  localStorage.setItem('hiyaa_token', token);
-  localStorage.setItem('hiyaa_user', JSON.stringify(user));
+  localStorage.setItem('boli_token', token);
+  localStorage.setItem('boli_user', JSON.stringify(user));
   document.getElementById('auth-overlay').style.display = 'none';
   updateUserBar();
 }
@@ -2377,20 +2385,20 @@ function updateUserBar() {
 }
 
 async function doLogout() {
-  var token = localStorage.getItem('hiyaa_token');
+  var token = localStorage.getItem('boli_token');
   if (token) {
     try { await fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }); } catch(e) {}
   }
   currentUser = null;
-  localStorage.removeItem('hiyaa_token');
-  localStorage.removeItem('hiyaa_user');
+  localStorage.removeItem('boli_token');
+  localStorage.removeItem('boli_user');
   document.getElementById('user-bar').style.display = 'none';
   document.getElementById('auth-overlay').style.display = 'flex';
 }
 
 async function checkAuth() {
-  var token = localStorage.getItem('hiyaa_token');
-  var savedUser = localStorage.getItem('hiyaa_user');
+  var token = localStorage.getItem('boli_token');
+  var savedUser = localStorage.getItem('boli_user');
   if (!token) {
     // Show auth overlay
     document.getElementById('auth-overlay').style.display = 'flex';
@@ -2402,13 +2410,13 @@ async function checkAuth() {
     if (resp.ok) {
       var data = await resp.json();
       currentUser = data.user;
-      localStorage.setItem('hiyaa_user', JSON.stringify(currentUser));
+      localStorage.setItem('boli_user', JSON.stringify(currentUser));
       document.getElementById('auth-overlay').style.display = 'none';
       updateUserBar();
     } else {
       // Token expired
-      localStorage.removeItem('hiyaa_token');
-      localStorage.removeItem('hiyaa_user');
+      localStorage.removeItem('boli_token');
+      localStorage.removeItem('boli_user');
       document.getElementById('auth-overlay').style.display = 'flex';
     }
   } catch(e) {
@@ -2519,7 +2527,7 @@ async function uploadTemplate(file) {
 
     // Save to localStorage
     try {
-      localStorage.setItem('hiyaa_template', JSON.stringify(activeTemplate));
+      localStorage.setItem('boli_template', JSON.stringify(activeTemplate));
     } catch(e) {}
 
     // Show preview
@@ -2550,7 +2558,7 @@ async function uploadTemplate(file) {
 
 function clearTemplate() {
   activeTemplate = null;
-  try { localStorage.removeItem('hiyaa_template'); } catch(e) {}
+  try { localStorage.removeItem('boli_template'); } catch(e) {}
   document.getElementById('tpl-preview').style.display = 'none';
   document.getElementById('tpl-status').style.display = 'none';
   document.getElementById('tpl-file').value = '';
@@ -2560,7 +2568,7 @@ function clearTemplate() {
 
 function loadSavedTemplate() {
   try {
-    var saved = localStorage.getItem('hiyaa_template');
+    var saved = localStorage.getItem('boli_template');
     if (saved) {
       activeTemplate = JSON.parse(saved);
       // Show the preview
@@ -2627,7 +2635,7 @@ function renderSavedTemplates() {
 async function callAPI(key, prompt, maxTokens) {
   var headers = { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' };
   // Send auth token if logged in
-  var token = localStorage.getItem('hiyaa_token');
+  var token = localStorage.getItem('boli_token');
   if (token) headers['Authorization'] = 'Bearer ' + token;
   // Only send key header if not using server key
   if (!serverHasKey && key) headers['x-api-key'] = key;
@@ -2674,6 +2682,282 @@ function buildTemplatePromptSection() {
 function doClearHistory(){if(confirm("Clear all history?")){localStorage.removeItem("sas_h");renderHistory();renderWeekly();}}
 </script>
 <script>
+// =====================================================================
+// BUILD DOCX FROM UPLOADED TEMPLATE
+// Maps generated lesson plan data to the uploaded template's structure
+// =====================================================================
+async function buildDocxFromTemplate(plan, template) {
+  var _d = docx;
+  var Document = _d.Document, Packer = _d.Packer, Paragraph = _d.Paragraph,
+      TextRun = _d.TextRun, Table = _d.Table, TableRow = _d.TableRow,
+      TableCell = _d.TableCell, AlignmentType = _d.AlignmentType,
+      BorderStyle = _d.BorderStyle, WidthType = _d.WidthType,
+      ShadingType = _d.ShadingType, HeadingLevel = _d.HeadingLevel;
+
+  var TW = 10692;
+  var GRAY = { fill: "808080", type: ShadingType.CLEAR, color: "FFFFFF" };
+  var LGRAY = { fill: "D9D9D9", type: ShadingType.CLEAR, color: "000000" };
+
+  function P(text, opts) {
+    opts = opts || {};
+    return new Paragraph({
+      children: [new TextRun({
+        text: text || "",
+        bold: opts.bold || false,
+        size: opts.size || 22,
+        font: opts.font || "Arial",
+        color: opts.color || "000000"
+      })],
+      spacing: { after: opts.spaceAfter || 80 },
+      alignment: opts.align || AlignmentType.LEFT
+    });
+  }
+
+  function PBold(text, opts) {
+    return P(text, Object.assign({ bold: true }, opts || {}));
+  }
+
+  function Hdr(text) {
+    return new TableCell({
+      children: [new Paragraph({
+        children: [new TextRun({ text: text || "", bold: true, size: 20, color: "FFFFFF", font: "Arial" })],
+        alignment: AlignmentType.CENTER
+      })],
+      shading: GRAY,
+      width: { size: TW, type: WidthType.DXA }
+    });
+  }
+
+  function LabelCell(text, w) {
+    return new TableCell({
+      children: [PBold(text, { size: 20 })],
+      shading: LGRAY,
+      width: { size: w || 2000, type: WidthType.DXA }
+    });
+  }
+
+  function DataCell(text, w, span) {
+    var opts = { children: [P(text || "", { size: 20 })], width: { size: w || 3000, type: WidthType.DXA } };
+    if (span) opts.columnSpan = span;
+    return new TableCell(opts);
+  }
+
+  function SubHdr(text) {
+    return new TableRow({ children: [new TableCell({
+      children: [PBold(text, { align: AlignmentType.CENTER, size: 21 })],
+      shading: LGRAY, width: { size: TW, type: WidthType.DXA }, columnSpan: 6
+    })] });
+  }
+
+  function BulList(items) {
+    if (!items || !items.length) return [P("", {})];
+    return items.map(function(item) {
+      return new Paragraph({
+        children: [new TextRun({ text: (item || "").replace(/^[•\-\*]\s*/, ""), size: 20, font: "Arial" })],
+        bullet: { level: 0 },
+        spacing: { after: 60 }
+      });
+    });
+  }
+
+  var mb = plan.mainBody || {};
+  var si = plan.setInduction || {};
+  var cl = plan.closure || {};
+
+  // ── Build the document matching uploaded template structure ──────
+  var sections = (template.structure && template.structure.sections) || [];
+
+  var tableRows = [
+    // Header row - School name
+    new TableRow({ children: [
+      new TableCell({
+        children: [P(plan.school || "School Name", { bold: true, size: 26, font: "Impact" }),
+                   P(plan.schoolAddress || "Maldives", { size: 18 })],
+        width: { size: TW * 0.6, type: WidthType.DXA }, columnSpan: 4
+      }),
+      new TableCell({
+        children: [PBold("Lesson Plan - " + new Date().getFullYear(), { align: AlignmentType.CENTER, size: 24 })],
+        shading: LGRAY, width: { size: TW * 0.4, type: WidthType.DXA }, columnSpan: 2
+      })
+    ]}),
+
+    // Meta row 1: Week / Date / Duration
+    new TableRow({ children: [
+      LabelCell("Week", 1200), DataCell(String(plan.week || ""), 1600),
+      LabelCell("Date", 1200), DataCell(plan.date || "", 1600),
+      LabelCell("Duration", 1400), DataCell((plan.duration || "35") + " mins", 1692)
+    ]}),
+
+    // Meta row 2: Subject / Class / Lesson No
+    new TableRow({ children: [
+      LabelCell("Subject", 1200), DataCell(plan.subject || "", 1600),
+      LabelCell("Class", 1200), DataCell(plan.grade || "", 1600),
+      LabelCell("Lesson No.", 1400), DataCell(plan.lessonNo || "", 1692)
+    ]}),
+
+    // Topic / Outcome Code
+    new TableRow({ children: [
+      LabelCell("Topic", 1200), DataCell(plan.topic || "", 4400, 3),
+      LabelCell("Outcome Code", 1800), DataCell(plan.outcomeCode || "", 1692)
+    ]}),
+
+    // Strand / Sub-strand
+    new TableRow({ children: [
+      new TableCell({ children: [PBold("Strand", {size:20})], shading: LGRAY, width: {size: TW/2, type: WidthType.DXA}, columnSpan: 3 }),
+      new TableCell({ children: [PBold("Sub-strand", {size:20})], shading: LGRAY, width: {size: TW/2, type: WidthType.DXA}, columnSpan: 3 })
+    ]}),
+    new TableRow({ children: [
+      DataCell(plan.strand || "", TW/2, 3),
+      DataCell(plan.substrand || "", TW/2, 3)
+    ]}),
+
+    // Learning Outcomes / Indicators
+    new TableRow({ children: [
+      new TableCell({ children: [PBold("Learning Outcomes",{size:20})], shading: LGRAY, width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 }),
+      new TableCell({ children: [PBold("Indicators",{size:20})], shading: LGRAY, width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 })
+    ]}),
+    new TableRow({ children: [
+      new TableCell({ children: BulList(plan.learningOutcomes), width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 }),
+      new TableCell({ children: BulList(plan.indicators), width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 })
+    ]}),
+
+    // Learning Intention / Success Criteria
+    new TableRow({ children: [
+      new TableCell({ children: [PBold("Learning Intention",{size:20})], shading: LGRAY, width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 }),
+      new TableCell({ children: [PBold("Success Criteria",{size:20})], shading: LGRAY, width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 })
+    ]}),
+    new TableRow({ children: [
+      new TableCell({ children: [P("We are learning to:", {bold:true,size:20})].concat(BulList(plan.learningIntentions)), width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 }),
+      new TableCell({ children: [P("I will be successful if:", {bold:true,size:20})].concat(BulList(plan.successCriteria)), width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 })
+    ]}),
+
+    // Key Competencies / Shared Values
+    new TableRow({ children: [
+      new TableCell({ children: [PBold("Key Competencies & Indicators",{size:20})], shading: LGRAY, width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 }),
+      new TableCell({ children: [PBold("Shared Values",{size:20})], shading: LGRAY, width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 })
+    ]}),
+    new TableRow({ children: [
+      new TableCell({ children: BulList(plan.keyCompetencies), width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 }),
+      new TableCell({ children: BulList(plan.sharedValues), width:{size:TW/2,type:WidthType.DXA}, columnSpan:3 })
+    ]}),
+
+    // Prior Knowledge / Teaching Aids
+    new TableRow({ children: [
+      LabelCell("Prior Knowledge", 1800),
+      new TableCell({ children: BulList(plan.priorKnowledge), width:{size:(TW/2-1800),type:WidthType.DXA}, columnSpan:2 }),
+      LabelCell("Teaching Aids / Resources", 2200),
+      new TableCell({ children: BulList(plan.teachingAids), width:{size:(TW/2-2200),type:WidthType.DXA}, columnSpan:2 })
+    ]})
+  ];
+
+  // Instructional Procedure table
+  var instrRows = [
+    new TableRow({ children: [new TableCell({
+      children: [PBold("Instructional Procedure", {align:AlignmentType.CENTER,size:22})],
+      shading: GRAY, width:{size:TW,type:WidthType.DXA}, columnSpan:4
+    })]}),
+
+    // Set Induction
+    SubHdr("SET INDUCTION (5 mins)"),
+    new TableRow({ children: [new TableCell({
+      children: BulList(si.activity || ["Hook activity"]),
+      width:{size:TW,type:WidthType.DXA}, columnSpan:4
+    })]}),
+
+    // Main Body
+    SubHdr("MAIN BODY (" + (parseInt(plan.duration||35)-10) + " mins)"),
+    new TableRow({ children: [
+      new TableCell({ children: [PBold("Time",{size:20})], shading:LGRAY, width:{size:800,type:WidthType.DXA} }),
+      new TableCell({ children: [PBold("Success criteria",{size:20})], shading:LGRAY, width:{size:2200,type:WidthType.DXA} }),
+      new TableCell({ children: [PBold("Activity",{size:20})], shading:LGRAY, width:{size:5000,type:WidthType.DXA} }),
+      new TableCell({ children: [PBold("Assessment methods",{size:20})], shading:LGRAY, width:{size:2692,type:WidthType.DXA} })
+    ]}),
+    new TableRow({ height:{value:2000,rule:"atLeast"}, children: [
+      new TableCell({ children: [P((parseInt(plan.duration||35)-10)+" mins",{size:20})], width:{size:800,type:WidthType.DXA} }),
+      new TableCell({ children: BulList(mb.successCriteria || plan.successCriteria), width:{size:2200,type:WidthType.DXA} }),
+      new TableCell({ children: [
+        PBold("LESSON INTRODUCTION",{size:20}),
+        ...BulList(mb.introduction),
+        P(""),
+        PBold("ACTIVITY",{size:20}),
+        ...BulList(mb.explanation),
+        P(""),
+        PBold("ADAPTATION (ACTIVITIES/WORKSHEETS)",{size:20}),
+        PBold("Level 1 (Below average):",{size:20}),
+        ...BulList(mb.level1),
+        P(""),
+        PBold("Level 2 (Average):",{size:20}),
+        ...BulList(mb.level2),
+        P(""),
+        PBold("Level 3 (Above average):",{size:20}),
+        ...BulList(mb.level3)
+      ], width:{size:5000,type:WidthType.DXA} }),
+      new TableCell({ children: BulList(mb.assessment), width:{size:2692,type:WidthType.DXA} })
+    ]}),
+
+    // Closure
+    SubHdr("CLOSURE (5 mins)"),
+    new TableRow({ children: [
+      new TableCell({ children: [PBold("Time",{size:20})], shading:LGRAY, width:{size:800,type:WidthType.DXA} }),
+      new TableCell({ children: [PBold("Teacher's Activity",{size:20})], shading:LGRAY, width:{size:5092,type:WidthType.DXA}, columnSpan:2 }),
+      new TableCell({ children: [PBold("Students' Activity",{size:20})], shading:LGRAY, width:{size:4800,type:WidthType.DXA} })
+    ]}),
+    new TableRow({ height:{value:1200,rule:"atLeast"}, children: [
+      new TableCell({ children: [P("5 mins",{size:20})], width:{size:800,type:WidthType.DXA} }),
+      new TableCell({ children: BulList(cl.teacherActivity), width:{size:5092,type:WidthType.DXA}, columnSpan:2 }),
+      new TableCell({ children: BulList(cl.studentActivity), width:{size:4800,type:WidthType.DXA} })
+    ]})
+  ];
+
+  // Checked by / Reflection tables
+  var checkedByRows = [
+    new TableRow({ children: [new TableCell({
+      children: [PBold("Checked by",{align:AlignmentType.CENTER,size:22})],
+      shading:LGRAY, width:{size:TW,type:WidthType.DXA}, columnSpan:4
+    })]}),
+    new TableRow({ children: [
+      new TableCell({children:[PBold("Designation",{size:20})],shading:LGRAY,width:{size:2500,type:WidthType.DXA}}),
+      new TableCell({children:[PBold("Name",{size:20})],shading:LGRAY,width:{size:2731,type:WidthType.DXA}}),
+      new TableCell({children:[PBold("Status",{size:20})],shading:LGRAY,width:{size:2731,type:WidthType.DXA}}),
+      new TableCell({children:[PBold("Date",{size:20})],shading:LGRAY,width:{size:2730,type:WidthType.DXA}})
+    ]}),
+    new TableRow({ height:{value:600,rule:"atLeast"}, children: [
+      DataCell("Leading Teacher",2500), DataCell("",2731), DataCell("",2731), DataCell("",2730)
+    ]})
+  ];
+
+  var reflectionRows = [
+    new TableRow({ children: [new TableCell({
+      children: [PBold("Reflection of the lesson",{align:AlignmentType.CENTER,size:22})],
+      shading:LGRAY, width:{size:TW,type:WidthType.DXA}, columnSpan:2
+    })]}),
+    new TableRow({ height:{value:1200,rule:"atLeast"}, children: [
+      DataCell("Strengths:", TW/2), DataCell("Areas for improvement:", TW/2)
+    ]})
+  ];
+
+  var makeBorder = function() { return {style:BorderStyle.SINGLE,size:6,color:"000000"}; };
+  var borders = {top:makeBorder(),bottom:makeBorder(),left:makeBorder(),right:makeBorder(),insideHorizontal:makeBorder(),insideVertical:makeBorder()};
+
+  var doc = new Document({
+    sections: [{
+      properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } } },
+      children: [
+        new Table({ width:{size:TW,type:WidthType.DXA}, borders:borders, rows: tableRows }),
+        new Paragraph({ children:[], spacing:{after:200} }),
+        new Table({ width:{size:TW,type:WidthType.DXA}, borders:borders, rows: instrRows }),
+        new Paragraph({ children:[], spacing:{after:200} }),
+        new Table({ width:{size:TW,type:WidthType.DXA}, borders:borders, rows: checkedByRows }),
+        new Paragraph({ children:[], spacing:{after:200} }),
+        new Table({ width:{size:TW,type:WidthType.DXA}, borders:borders, rows: reflectionRows })
+      ]
+    }]
+  });
+
+  return await Packer.toBlob(doc);
+}
+
+
 async function buildDocx(p) {
   var _d=docx;
   var Document=_d.Document,Packer=_d.Packer,Paragraph=_d.Paragraph,TextRun=_d.TextRun,

@@ -7,9 +7,9 @@ const busboy = require('busboy');
 
 const PORT = parseInt(process.env.PORT) || 3579;
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
-const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'hiyaa2026';
+const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'boli2026';
 
-console.log('=== Hiyaa Lesson Planner v2 ===');
+console.log('=== Boli Lesson Planner ===');
 console.log('Port:', PORT);
 console.log('API Key configured:', ANTHROPIC_KEY ? 'YES' : 'NO');
 
@@ -220,5 +220,5 @@ const server = http.createServer(async (req, res) => {
 
 server.on('error', e => { console.error('FATAL:', e.message); process.exit(1); });
 server.listen(PORT, '0.0.0.0', () => {
-  console.log('Hiyaa ready at http://0.0.0.0:' + PORT);
+  console.log('Boli ready at http://0.0.0.0:' + PORT);
 });
