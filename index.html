@@ -2837,25 +2837,30 @@ Return ONLY valid JSON: [{"topic":"...","activity":"..."}]';
 // CHECKLIST
 // =====================================================================
 function clUpdateOutcomes() {
-  var grade = document.getElementById('cl-grade').value;
-  var sub = document.getElementById('cl-sub').value;
+  var gradeEl = document.getElementById('cl-grade');
+  var subEl = document.getElementById('cl-sub');
+  var sel = document.getElementById('cl-outcome');
+  if (!gradeEl || !subEl || !sel) return;
+  var grade = gradeEl.value;
+  var sub = subEl.value;
   var data = getSyl(grade, sub);
   var map = {};
-  data.forEach(function(d) {
-    if (!map[d.out_code]) map[d.out_code] = d;
-  });
+  data.forEach(function(d) { if (!map[d.out_code]) map[d.out_code] = d; });
   var outcomes = Object.values(map);
-  var sel = document.getElementById('cl-outcome');
-  sel.innerHTML = '<option value="">-- Select Outcome --</option>'
-    + outcomes.map(function(o) {
+  sel.innerHTML = '<option value="">-- Select Outcome --</option>' +
+    outcomes.map(function(o) {
       return '<option value="' + o.out_code + '">' + o.out_code + ': ' + o.out_stmt.slice(0,70) + (o.out_stmt.length>70?'...':'') + '</option>';
     }).join('');
-  // Clear auto-filled fields
-  document.getElementById('cl-strand').value = '';
-  document.getElementById('cl-substrand').value = '';
-  document.getElementById('cl-outcome-stmt').value = '';
-  document.getElementById('cl-ind-wrap').style.display = 'none';
+  var clStrand = document.getElementById('cl-strand');
+  var clSub2 = document.getElementById('cl-substrand');
+  var clStmt = document.getElementById('cl-outcome-stmt');
+  var clWrap = document.getElementById('cl-ind-wrap');
+  if (clStrand) clStrand.value = '';
+  if (clSub2) clSub2.value = '';
+  if (clStmt) clStmt.value = '';
+  if (clWrap) clWrap.style.display = 'none';
 }
+
 
 function clFillFromOutcome() {
   var code = document.getElementById('cl-outcome').value;
