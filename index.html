@@ -341,51 +341,6 @@ body::before {
 .copy-btn:hover { background: var(--ocean-pale); }
 
 
-/* ── SCHEME ROWS ───────────────────────────────────────────────── */
-.sch-row {
-  display: grid;
-  grid-template-columns: 80px 1fr 2fr 80px;
-  gap: 8px;
-  align-items: start;
-  background: var(--sand);
-  border: 1px solid var(--sand-dark);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  position: relative;
-}
-.sch-row-num {
-  font-size: 11px; font-weight: 800;
-  color: var(--ocean-mid);
-  padding-top: 10px; text-align: center;
-}
-.sch-row select, .sch-row input {
-  width: 100%; border: 1.5px solid var(--sand-dark);
-  border-radius: 7px; padding: 7px 9px;
-  font-size: 12px; font-family: 'Nunito', sans-serif;
-  color: var(--text-dark); background: #fff;
-}
-.sch-row select:focus, .sch-row input:focus {
-  outline: none; border-color: var(--ocean-light);
-}
-.sch-row-del {
-  background: none; border: none; color: #e0a0a0;
-  font-size: 16px; cursor: pointer; padding: 8px 4px;
-  align-self: start; margin-top: 4px;
-}
-.sch-row-del:hover { color: var(--coral); }
-/* Checklist indicators */
-.cl-ind-item {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 6px 4px; border-bottom: 1px solid var(--sand-dark);
-  font-size: 12px; color: var(--text-dark); line-height: 1.5;
-}
-.cl-ind-item:last-child { border-bottom: none; }
-.cl-ind-code {
-  font-size: 11px; font-weight: 800; color: var(--ocean-mid);
-  white-space: nowrap; min-width: 60px;
-}
-
 /* ── AUTH OVERLAY ──────────────────────────────────────────────── */
 .auth-overlay {
   position: fixed; inset: 0; z-index: 1000;
@@ -584,105 +539,34 @@ body::before {
 <!-- SCHEMES -->
 <div class="page" id="page-schemes">
 <div class="card">
-  <div class="card-title">Scheme of Work Generator</div>
-  <div class="g2">
-    <div class="field"><label>Grade</label>
-      <select id="sch-grade" onchange="schUpdateSubjects()">
-        <option>Grade 2</option><option>Grade 4</option><option selected>Grade 5</option>
-      </select>
-    </div>
-    <div class="field"><label>Subject</label>
-      <select id="sch-sub" onchange="schUpdateOutcomes()">
-        <option>Mathematics</option><option>English</option><option>Science</option>
-        <option>Social Studies</option><option>H.PE</option><option>Creative Arts</option>
-      </select>
-    </div>
+  <div class="card-title">Scheme of Work</div>
+  <div class="g3">
+    <div class="field"><label>Grade</label><select id="sch-grade"><option>Grade 2</option><option>Grade 4</option><option selected>Grade 5</option></select></div>
+    <div class="field"><label>Subject</label><select id="sch-sub"><option>Mathematics</option><option>English</option><option>Science</option><option>Social Studies</option><option>H.PE</option><option>Creative Arts</option></select></div>
+    <div class="field"><label>Term</label><select id="sch-term"><option value="0">All Terms</option><option value="1">Term 1</option><option value="2">Term 2</option></select></div>
   </div>
-  <div class="g2">
-    <div class="field"><label>Term</label>
-      <select id="sch-term" onchange="schUpdateWeeks()">
-        <option value="1" selected>Term 1</option>
-        <option value="2">Term 2</option>
-      </select>
-    </div>
-    <div class="field"><label>Teacher Name</label>
-      <input type="text" id="sch-teacher" placeholder="e.g. Aminath Ali">
-    </div>
-  </div>
-  <div class="field"><label>School Name</label>
-    <input type="text" id="sch-school" placeholder="e.g. Seenu Atoll School">
-  </div>
-
-  <!-- Outcome rows -->
-  <div style="margin-bottom:14px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <label style="font-size:10px;font-weight:800;color:var(--ocean-mid);text-transform:uppercase;letter-spacing:.07em;">Outcomes &amp; Weeks</label>
-      <button onclick="schAddRow()" style="background:var(--ocean-pale);border:1px solid var(--ocean-light);color:var(--ocean-deep);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;">+ Add Row</button>
-    </div>
-    <div id="sch-rows"></div>
-  </div>
-
-  <button class="btn btn-navy" id="sch-btn" onclick="doSchemeGenerate()">&#9889; Generate Scheme of Work (.docx)</button>
-  <div class="prog" id="sch-prog"><div class="prog-bar" id="sch-pbar" style="width:0%"></div></div>
-  <div class="status" id="sch-status"></div>
+  <button class="btn btn-navy" style="margin-bottom:14px;" onclick="doScheme()">&#9654; Generate Scheme</button>
+  <div id="sch-out"></div>
 </div></div>
 
 <!-- CHECKLISTS -->
 <div class="page" id="page-checklists">
 <div class="card">
-  <div class="card-title">Outcome Assessment Record Sheet</div>
+  <div class="card-title">Checklist Generator</div>
+  <div class="apirow"><label>API Key</label><input type="password" id="cl-key" placeholder="sk-ant-api03-..."></div>
   <div class="g3">
-    <div class="field"><label>Grade / Class</label>
-      <select id="cl-grade" onchange="clUpdateOutcomes()">
-        <option>Grade 2</option><option>Grade 4</option><option selected>Grade 5</option>
-      </select>
-    </div>
-    <div class="field"><label>Subject</label>
-      <select id="cl-sub" onchange="clUpdateOutcomes()">
-        <option>Mathematics</option><option>English</option><option>Science</option>
-        <option>Social Studies</option><option>H.PE</option><option>Creative Arts</option>
-      </select>
-    </div>
-    <div class="field"><label>Term</label>
-      <select id="cl-term">
-        <option value="1" selected>Term 1 (2026)</option>
-        <option value="2">Term 2 (2026)</option>
-      </select>
-    </div>
-  </div>
-  <div class="field"><label>Outcome Code</label>
-    <select id="cl-outcome" onchange="clFillFromOutcome()">
-      <option value="">-- Select Outcome --</option>
-    </select>
-  </div>
-  <!-- Auto-filled fields -->
-  <div class="g2">
-    <div class="field"><label>Strand <span style="color:var(--ocean-light);font-size:9px;">(auto-filled)</span></label>
-      <input type="text" id="cl-strand" readonly style="background:#f5f5f5;color:var(--text-mid);" placeholder="Select outcome above">
-    </div>
-    <div class="field"><label>Sub-Strand <span style="color:var(--ocean-light);font-size:9px;">(auto-filled)</span></label>
-      <input type="text" id="cl-substrand" readonly style="background:#f5f5f5;color:var(--text-mid);" placeholder="Select outcome above">
-    </div>
-  </div>
-  <div class="field"><label>Outcome Statement <span style="color:var(--ocean-light);font-size:9px;">(auto-filled)</span></label>
-    <textarea id="cl-outcome-stmt" readonly rows="2" style="background:#f5f5f5;color:var(--text-mid);" placeholder="Select outcome above"></textarea>
-  </div>
-  <!-- Indicators - auto-filled checkboxes -->
-  <div class="field" id="cl-ind-wrap" style="display:none;">
-    <label>Indicators <span style="color:var(--ocean-light);font-size:9px;">(auto-filled from syllabus)</span></label>
-    <div id="cl-indicators" style="border:1.5px solid var(--sand-dark);border-radius:8px;padding:10px;background:#fafafa;"></div>
+    <div class="field"><label>Grade</label><select id="cl-grade"><option>Grade 2</option><option>Grade 4</option><option selected>Grade 5</option></select></div>
+    <div class="field"><label>Subject</label><select id="cl-sub"><option>Mathematics</option><option>English</option><option>Science</option><option>Social Studies</option><option>H.PE</option><option>Creative Arts</option></select></div>
+    <div class="field"><label>Type</label><select id="cl-type"><option value="observation">Observation</option><option value="skills">Skills</option><option value="behaviour">Behaviour</option><option value="formative">Formative Assessment</option></select></div>
   </div>
   <div class="g2">
-    <div class="field"><label>School Name</label>
-      <input type="text" id="cl-school" placeholder="e.g. Seenu Atoll School">
-    </div>
-    <div class="field"><label>No. of Students</label>
-      <input type="number" id="cl-students" value="23" min="1" max="40">
-    </div>
+    <div class="field"><label>Topic (optional)</label><input type="text" id="cl-topic" placeholder="e.g. Fractions"></div>
+    <div class="field"><label>No. of students</label><input type="number" id="cl-students" value="25" min="5" max="40"></div>
   </div>
-  <button class="btn btn-blue" id="cl-btn" onclick="doChecklistDocx()">&#9889; Generate Checklist (.docx)</button>
+  <button class="btn btn-blue" id="cl-btn" onclick="doChecklist()">&#9889; Generate Checklist</button>
   <div class="prog" id="cl-prog"><div class="prog-bar" id="cl-bar" style="width:0%"></div></div>
   <div class="status" id="cl-status"></div>
+  <div id="cl-out"></div>
 </div></div>
 
 <!-- REPORT CARDS -->
@@ -1989,8 +1873,6 @@ document.addEventListener("DOMContentLoaded", function() {
   loadSavedTemplate();
   renderSavedTemplates();
   checkAuth();
-  // Init scheme rows after short delay so DOM is ready
-  setTimeout(function() { schInitRows(); clUpdateOutcomes(); }, 100);
 });
 
 function populateWeeks() {
@@ -2191,7 +2073,153 @@ async function doGenerate() {
   btn.disabled=false;
 }
 
-// doScheme replaced by doSchemeGenerate
+function doScheme() {
+  var grade=document.getElementById("sch-grade").value;
+  var sub=document.getElementById("sch-sub").value;
+  var term=parseInt(document.getElementById("sch-term").value);
+  var data=getSyl(grade,sub);
+  if(!data.length){document.getElementById("sch-out").innerHTML="<p style='color:#888;padding:10px;'>No scheme data for "+grade+" "+sub+". Available: Grade 2 (Maths, Science, H.PE, Creative Arts, English) and Grade 5 (English, Science, Social Studies).</p>";return;}
+  var outMap={};
+  data.forEach(function(d){
+    if(!outMap[d.out_code])outMap[d.out_code]={code:d.out_code,stmt:d.out_stmt,strand:d.strand,sub:d.substrand,inds:[]};
+    outMap[d.out_code].inds.push(d.ind_code+": "+d.indicator);
+  });
+  var outcomes=Object.values(outMap);
+  var weeks=term>0?CAL.filter(function(w){return w.term===term&&w.type!=="Mid-Break"&&w.type!=="PD"&&w.type!=="Non-Teaching";}):CAL.filter(function(w){return w.type!=="Mid-Break"&&w.type!=="PD"&&w.type!=="Non-Teaching";});
+  var html="<div style='overflow-x:auto'><table class='sch-table'><thead><tr><th>Week</th><th>Term</th><th>Dates</th><th>Strand</th><th>Sub-strand</th><th>Outcome</th><th>Indicators</th></tr></thead><tbody>";
+  outcomes.forEach(function(out,i){
+    var w=weeks[i%weeks.length]; if(!w)return;
+    var typeCls={"Teaching":"","Exam":"exam","Reflection":"reflect","Camps":""}[w.type]||"";
+    html+="<tr><td><span class='wk-badge "+typeCls+"'>WK"+w.wk+"</span></td><td>T"+w.term+"</td>";
+    html+="<td style='white-space:nowrap;font-size:11px;'>"+fmtLong(w.start)+"–"+fmtLong(w.end)+"</td>";
+    html+="<td>"+out.strand+"</td><td>"+out.sub+"</td>";
+    html+="<td><b>"+out.code+"</b><br><span style='font-size:11px;color:#555;'>"+out.stmt+"</span></td>";
+    html+="<td>"+out.inds.map(function(x){return"<span style='display:block;font-size:11px;margin-bottom:2px;'>&#8226; "+x+"</span>";}).join("")+"</td></tr>";
+  });
+  html+="</tbody></table></div>";
+  document.getElementById("sch-out").innerHTML=html;
+}
+
+async function doChecklist() {
+  var key=document.getElementById("cl-key").value.trim();
+  if(!key){alert("Please enter your API key.");return;}
+  var grade=document.getElementById("cl-grade").value;
+  var sub=document.getElementById("cl-sub").value;
+  var type=document.getElementById("cl-type").value;
+  var topic=document.getElementById("cl-topic").value;
+  var n=parseInt(document.getElementById("cl-students").value)||25;
+  var btn=document.getElementById("cl-btn"); btn.disabled=true;
+  setStatus("cl-status","loading","<span class='spin'></span> Generating...");
+  setProgress("cl-prog","cl-bar",30);
+  try {
+    var prompt="Create a teacher "+type+" checklist for "+grade+" "+sub+(topic?" topic: "+topic:"")+". Generate 8-12 observable, measurable criteria appropriate for this grade. Respond ONLY with valid JSON: {\"title\":\"...\",\"criteria\":[\"criterion 1\",\"criterion 2\"]}";
+    var res=await callAPI(key,prompt,800);
+    setProgress("cl-prog","cl-bar",100);
+    setStatus("cl-status","done","&#10003; Checklist ready!");
+    var rows="";
+    for(var i=0;i<n;i++){
+      rows+="<tr><td>"+(i+1)+"</td><td style='min-width:140px;'>___________________</td>";
+      res.criteria.forEach(function(){rows+="<td style='text-align:center;'><div style='display:inline-block;width:20px;height:20px;border:2px solid #1a2e42;border-radius:50%;'></div></td>";});
+      rows+="<td></td></tr>";
+    }
+    var ths="<th>#</th><th>Student Name</th>"+res.criteria.map(function(c){return"<th style='font-size:10px;max-width:80px;'>"+c+"</th>";}).join("")+"<th>Notes</th>";
+    document.getElementById("cl-out").innerHTML="<h3 style='margin:12px 0 8px;font-size:14px;color:#1a2e42;'>"+res.title+"</h3><div style='overflow-x:auto'><table class='sch-table'><thead><tr>"+ths+"</tr></thead><tbody>"+rows+"</tbody></table></div><button class='btn btn-green' style='margin-top:10px;width:auto;padding:8px 20px;' onclick='window.print()'>&#128424; Print</button>";
+  } catch(e){setStatus("cl-status","error","&#9888; "+e.message);}
+  btn.disabled=false;
+}
+
+async function doReportCard() {
+  var key=document.getElementById("rc-key").value.trim();
+  if(!key){alert("Please enter your API key.");return;}
+  var grade=document.getElementById("rc-grade").value;
+  var sub=document.getElementById("rc-sub").value;
+  var name=document.getElementById("rc-name").value||"the student";
+  var gender=document.getElementById("rc-gender").value;
+  var level=document.getElementById("rc-level").value;
+  var strengths=document.getElementById("rc-strengths").value;
+  var improve=document.getElementById("rc-improve").value;
+  var notes=document.getElementById("rc-notes").value;
+  var tone=document.getElementById("rc-tone").value;
+  var pro=gender==="F"?"she/her/her":"he/him/his";
+  var btn=document.getElementById("rc-btn"); btn.disabled=true;
+  setStatus("rc-status","loading","<span class='spin'></span> Generating...");
+  setProgress("rc-prog","rc-bar",30);
+  try {
+    var prompt="Write 3 "+tone+" report card comment variations for a "+grade+" "+sub+" student at Boli.\nStudent: "+name+" (pronouns: "+pro+")\nPerformance: "+level+"\n"+(strengths?"Strengths: "+strengths+"\n":"")+(improve?"Improve: "+improve+"\n":"")+(notes?"Context: "+notes+"\n":"")
+    +"\nEach: 2-4 sentences, professional, specific, use student name & correct pronouns, include academic reference and forward-looking statement.\nRespond ONLY with valid JSON: {\"comments\":[\"comment1\",\"comment2\",\"comment3\"]}";
+    var res=await callAPI(key,prompt,800);
+    setProgress("rc-prog","rc-bar",100);
+    setStatus("rc-status","done","&#10003; Done — click Copy to use");
+    document.getElementById("rc-out").innerHTML=res.comments.map(function(c,i){
+      var safe=c.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+      return"<div class='out-box' style='margin-bottom:10px;'><div style='font-size:10px;font-weight:700;color:#888;margin-bottom:6px;'>OPTION "+(i+1)+"</div><div style='font-size:13px;line-height:1.7;'>"+c+"</div><button class='copy-btn' onclick='navigator.clipboard.writeText(\""+safe+"\").then(function(){alert(\"Copied!\")})'>&#128203; Copy</button></div>";
+    }).join("");
+  } catch(e){setStatus("rc-status","error","&#9888; "+e.message);}
+  btn.disabled=false;
+}
+
+async function doAssessment() {
+  var key=document.getElementById("as-key").value.trim();
+  if(!key){alert("Please enter your API key.");return;}
+  var grade=document.getElementById("as-grade").value;
+  var sub=document.getElementById("as-sub").value;
+  var blooms=document.getElementById("as-blooms").value;
+  var topic=document.getElementById("as-topic").value;
+  var num=parseInt(document.getElementById("as-num").value)||10;
+  if(!topic){alert("Please enter a topic.");return;}
+  var btn=document.getElementById("as-btn"); btn.disabled=true;
+  setStatus("as-status","loading","<span class='spin'></span> Generating "+currentAtype+"...");
+  setProgress("as-prog","as-bar",30);
+  var prompts={
+    "worksheet":"Create a differentiated worksheet for "+grade+" "+sub+" topic: "+topic+". Bloom's: "+blooms+". "+num+" questions across 3 levels (Below Average, Average, Above Average). Include Maldivian contexts. Respond ONLY with valid JSON: {\"title\":\"...\",\"sections\":[{\"level\":\"Level 1 - Below Average\",\"questions\":[{\"q\":\"...\",\"type\":\"short answer\"}]}]}",
+    "quiz":"Create a "+num+"-question quiz for "+grade+" "+sub+" topic: "+topic+". Bloom's: "+blooms+". Mix MCQ/true-false/short answer. Respond ONLY with valid JSON: {\"title\":\"...\",\"questions\":[{\"q\":\"...\",\"type\":\"MCQ\",\"options\":[\"a) ...\",\"b) ...\"],\"answer\":\"a\"}]}",
+    "rubric":"Create assessment rubric for "+grade+" "+sub+" task: "+topic+". 4-6 criteria, levels: Beginning/Developing/Achieving/Extending. Respond ONLY with valid JSON: {\"title\":\"...\",\"criteria\":[{\"name\":\"...\",\"levels\":{\"Beginning\":\"...\",\"Developing\":\"...\",\"Achieving\":\"...\",\"Extending\":\"...\"}}]}",
+    "exit_ticket":"Create 3 exit ticket options for "+grade+" "+sub+" topic: "+topic+". Each has 2-3 quick questions. Bloom's: "+blooms+". Respond ONLY with valid JSON: {\"title\":\"...\",\"tickets\":[{\"title\":\"Option 1\",\"questions\":[\"...\"]}]}",
+    "project":"Create project brief for "+grade+" "+sub+" topic: "+topic+". Bloom's: "+blooms+". Include overview, outcomes, tasks, success criteria, timeline, format. Respond ONLY with valid JSON: {\"title\":\"...\",\"overview\":\"...\",\"outcomes\":[\"...\"],\"tasks\":[\"...\"],\"criteria\":[\"...\"],\"timeline\":\"...\",\"format\":\"...\"}"
+  };
+  try {
+    var res=await callAPI(key,prompts[currentAtype],2000);
+    setProgress("as-prog","as-bar",100);
+    setStatus("as-status","done","&#10003; Generated!");
+    var html="<div class='out-box'><h3>"+(res.title||"Assessment")+"</h3>";
+    if(currentAtype==="worksheet"&&res.sections){
+      res.sections.forEach(function(s){
+        html+="<div style='font-size:12px;font-weight:700;background:#1a2e42;color:#fff;padding:5px 10px;border-radius:4px;margin:10px 0 6px;'>"+s.level+"</div>";
+        (s.questions||[]).forEach(function(q,i){
+          html+="<div style='margin-bottom:8px;font-size:13px;'><b>"+(i+1)+".</b> "+q.q;
+          if(q.options)html+="<br><span style='color:#555;font-size:11px;'>"+q.options.join(" &nbsp;")+"</span>";
+          html+="<div style='border-bottom:1px dashed #ccc;margin-top:4px;height:18px;'></div></div>";
+        });
+      });
+    } else if(currentAtype==="quiz"&&res.questions){
+      res.questions.forEach(function(q,i){
+        html+="<div style='margin-bottom:10px;font-size:13px;'><b>"+(i+1)+".</b> "+q.q;
+        if(q.options)html+="<br><span style='font-size:11px;color:#555;'>"+q.options.join(" &nbsp;")+"</span>";
+        html+="<div style='border-bottom:1px dashed #ccc;margin-top:4px;height:18px;'></div></div>";
+      });
+    } else if(currentAtype==="rubric"&&res.criteria){
+      html+="<table style='width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;'><thead><tr><th style='background:#1a2e42;color:#fff;padding:7px;'>Criteria</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Beginning</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Developing</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Achieving</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Extending</th></tr></thead><tbody>";
+      res.criteria.forEach(function(c){html+="<tr><td style='padding:7px;border:1px solid #dde;font-weight:600;'>"+c.name+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Beginning||"")+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Developing||"")+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Achieving||"")+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Extending||"")+"</td></tr>";});
+      html+="</tbody></table>";
+    } else if(currentAtype==="exit_ticket"&&res.tickets){
+      res.tickets.forEach(function(t){
+        html+="<div style='border:1px solid #dde2e8;border-radius:6px;padding:10px;margin-bottom:10px;'><b style='font-size:12px;'>"+t.title+"</b>";
+        (t.questions||[]).forEach(function(q,i){html+="<div style='margin-top:6px;font-size:13px;'>"+(i+1)+". "+q+"<div style='border-bottom:1px dashed #ccc;margin-top:3px;height:18px;'></div></div>";});
+        html+="</div>";
+      });
+    } else {
+      if(res.overview)html+="<p style='font-size:13px;margin-bottom:8px;'>"+res.overview+"</p>";
+      if(res.outcomes)html+="<b style='font-size:12px;'>Outcomes:</b><ul style='font-size:13px;margin:5px 0 10px 20px;'>"+res.outcomes.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ul>";
+      if(res.tasks)html+="<b style='font-size:12px;'>Tasks:</b><ol style='font-size:13px;margin:5px 0 10px 20px;'>"+res.tasks.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ol>";
+      if(res.criteria)html+="<b style='font-size:12px;'>Success Criteria:</b><ul style='font-size:13px;margin:5px 0 10px 20px;'>"+res.criteria.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ul>";
+      if(res.timeline)html+="<b style='font-size:12px;'>Timeline:</b> <span style='font-size:13px;'>"+res.timeline+"</span><br>";
+      if(res.format)html+="<b style='font-size:12px;'>Format:</b> <span style='font-size:13px;'>"+res.format+"</span>";
+    }
+    html+="</div>";
+    document.getElementById("as-out").innerHTML=html;
+  } catch(e){setStatus("as-status","error","&#9888; "+e.message);}
+  btn.disabled=false;
+}
 
 function renderCalendar() {
   var typeColors={"Teaching":"#e3f0fa","Exam":"#f3e5f5","Reflection":"#e8f5e9","Camps":"#fff9c4","Mid-Break":"#fce4ec","PD":"#fff3e0","Non-Teaching":"#f5f5f5"};
@@ -2652,550 +2680,8 @@ function buildTemplatePromptSection() {
 }
 
 function doClearHistory(){if(confirm("Clear all history?")){localStorage.removeItem("sas_h");renderHistory();renderWeekly();}}
-
-// =====================================================================
-// SCHEME OF WORK
-// =====================================================================
-var schRowCount = 0;
-
-function schUpdateSubjects() { schUpdateOutcomes(); schInitRows(); }
-
-function schGetOutcomes() {
-  var grade = document.getElementById('sch-grade').value;
-  var sub = document.getElementById('sch-sub').value;
-  var data = getSyl(grade, sub);
-  var map = {};
-  data.forEach(function(d) {
-    if (!map[d.out_code]) map[d.out_code] = { code: d.out_code, stmt: d.out_stmt, strand: d.strand, substrand: d.substrand };
-  });
-  return Object.values(map);
-}
-
-function schUpdateOutcomes() { schInitRows(); }
-
-function schUpdateWeeks() { schInitRows(); }
-
-function schGetWeeksForTerm() {
-  var term = parseInt(document.getElementById('sch-term').value);
-  return CAL.filter(function(w) { return w.term === term; });
-}
-
-function schInitRows() {
-  var container = document.getElementById('sch-rows');
-  if (!container) return;
-  container.innerHTML = '';
-  schRowCount = 0;
-  // Add 5 default rows
-  for (var i = 0; i < 5; i++) schAddRow();
-}
-
-function schAddRow() {
-  schRowCount++;
-  var outcomes = schGetOutcomes();
-  var weeks = schGetWeeksForTerm();
-  var rowId = 'sch-row-' + schRowCount;
-
-  var outOpts = '<option value="">-- Select Outcome --</option>' +
-    outcomes.map(function(o) {
-      return '<option value="' + o.code + '">' + o.code + ': ' + o.stmt.slice(0, 60) + (o.stmt.length > 60 ? '...' : '') + '</option>';
-    }).join('');
-
-  var wkOpts = '<option value="">-- Week --</option>' +
-    weeks.map(function(w) {
-      return '<option value="' + w.wk + '">WK' + w.wk + ' (' + fmtShort(w.start) + ')</option>';
-    }).join('');
-
-  var html = '<div class="sch-row" id="' + rowId + '">'
-    + '<div class="sch-row-num">Row ' + schRowCount + '</div>'
-    + '<div><label style="font-size:10px;font-weight:700;color:var(--ocean-mid);display:block;margin-bottom:3px;">OUTCOME</label>'
-    + '<select onchange="schRowOutcomeChange(this,'' + rowId + '')">' + outOpts + '</select>'
-    + '<div id="' + rowId + '-info" style="font-size:10px;color:var(--text-mid);margin-top:3px;"></div></div>'
-    + '<div><label style="font-size:10px;font-weight:700;color:var(--ocean-mid);display:block;margin-bottom:3px;">TOPIC / ACTIVITY NOTES (optional)</label>'
-    + '<input type="text" id="' + rowId + '-topic" placeholder="Leave blank to auto-generate"></div>'
-    + '<div style="display:flex;align-items:flex-end;gap:6px;">'
-    + '<div style="flex:1"><label style="font-size:10px;font-weight:700;color:var(--ocean-mid);display:block;margin-bottom:3px;">WEEK</label>'
-    + '<select id="' + rowId + '-wk">' + wkOpts + '</select></div>'
-    + '<button class="sch-row-del" onclick="schDelRow('' + rowId + '')">&#128465;</button>'
-    + '</div></div>';
-
-  document.getElementById('sch-rows').insertAdjacentHTML('beforeend', html);
-}
-
-function schRowOutcomeChange(sel, rowId) {
-  var code = sel.value;
-  var infoEl = document.getElementById(rowId + '-info');
-  if (!infoEl) return;
-  var grade = document.getElementById('sch-grade').value;
-  var sub = document.getElementById('sch-sub').value;
-  var data = getSyl(grade, sub).filter(function(d) { return d.out_code === code; });
-  if (data.length) {
-    infoEl.textContent = data[0].strand + ' > ' + data[0].substrand;
-    infoEl.style.color = 'var(--ocean-mid)';
-  } else {
-    infoEl.textContent = '';
-  }
-}
-
-function schDelRow(rowId) {
-  var el = document.getElementById(rowId);
-  if (el) el.remove();
-}
-
-async function doSchemeGenerate() {
-  var grade = document.getElementById('sch-grade').value;
-  var sub = document.getElementById('sch-sub').value;
-  var term = parseInt(document.getElementById('sch-term').value);
-  var teacher = document.getElementById('sch-teacher').value || '';
-  var school = document.getElementById('sch-school').value || '';
-
-  // Collect rows
-  var rows = [];
-  document.querySelectorAll('.sch-row').forEach(function(row) {
-    var id = row.id;
-    var outSel = row.querySelector('select');
-    var topicInput = document.getElementById(id + '-topic');
-    var wkSel = document.getElementById(id + '-wk');
-    var outCode = outSel ? outSel.value : '';
-    if (!outCode) return;
-
-    var gradeData = getSyl(grade, sub).filter(function(d) { return d.out_code === outCode; });
-    var indicators = gradeData.map(function(d) { return d.ind_code + ': ' + d.indicator; });
-    var strand = gradeData.length ? gradeData[0].strand : '';
-    var substrand = gradeData.length ? gradeData[0].substrand : '';
-    var stmt = gradeData.length ? gradeData[0].out_stmt : '';
-    var wk = wkSel ? wkSel.value : '';
-    var wkData = wk ? getWeek(parseInt(wk)) : null;
-
-    rows.push({
-      wk: wk,
-      wkDates: wkData ? fmtLong(wkData.start) + ' – ' + fmtLong(wkData.end) : '',
-      strand: strand,
-      substrand: substrand,
-      outCode: outCode,
-      outStmt: stmt,
-      indicators: indicators,
-      topic: topicInput ? topicInput.value : '',
-      pd: wkData ? wkData.type : ''
-    });
-  });
-
-  if (!rows.length) { alert('Please add at least one outcome row.'); return; }
-
-  var btn = document.getElementById('sch-btn');
-  btn.disabled = true;
-  setStatus('sch-status', 'loading', '<span class="spin"></span> Generating scheme...');
-  setProgress('sch-prog', 'sch-pbar', 20);
-
-  // For rows without a topic, ask Claude to suggest one
-  var rowsNeedingTopics = rows.filter(function(r) { return !r.topic; });
-  if (rowsNeedingTopics.length) {
-    try {
-      var prompt = 'You are a curriculum expert for ' + grade + ' ' + sub + ' in the Maldives.
-'
-        + 'For each outcome below, suggest a concise topic/theme title (3-8 words) and a brief learning activity description (1 sentence).
-'
-        + 'Outcomes:
-'
-        + rowsNeedingTopics.map(function(r, i) { return i + '. ' + r.outCode + ': ' + r.outStmt; }).join('
-')
-        + '
-
-Return ONLY valid JSON: [{"topic":"...","activity":"..."}]';
-
-      var key = localStorage.getItem('boli_key') || '';
-      var res = await callAPI(key, prompt, 1500);
-      if (Array.isArray(res)) {
-        var j = 0;
-        rows.forEach(function(r) {
-          if (!r.topic && res[j]) {
-            r.topic = res[j].topic || '';
-            r.aiActivity = res[j].activity || '';
-            j++;
-          }
-        });
-      }
-    } catch(e) {
-      console.log('Topic generation skipped:', e.message);
-    }
-  }
-
-  setProgress('sch-prog', 'sch-pbar', 60);
-
-  try {
-    var blob = await buildSchemeDocx({ grade, sub, term, teacher, school, rows });
-    var url = URL.createObjectURL(blob);
-    var fname = sub.replace(/\s+/g,'') + '_' + grade.replace(/\s+/g,'') + '_T' + term + '_Scheme.docx';
-    setProgress('sch-prog', 'sch-pbar', 100);
-    setStatus('sch-status', 'done', '&#10003; Scheme generated! <a class="dl-btn" href="' + url + '" download="' + fname + '">&#8681; Download ' + fname + '</a>');
-  } catch(e) {
-    setStatus('sch-status', 'error', '&#9888; ' + e.message);
-  }
-  btn.disabled = false;
-}
-
-// =====================================================================
-// CHECKLIST
-// =====================================================================
-function clUpdateOutcomes() {
-  var gradeEl = document.getElementById('cl-grade');
-  var subEl = document.getElementById('cl-sub');
-  var sel = document.getElementById('cl-outcome');
-  if (!gradeEl || !subEl || !sel) return;
-  var grade = gradeEl.value;
-  var sub = subEl.value;
-  var data = getSyl(grade, sub);
-  var map = {};
-  data.forEach(function(d) { if (!map[d.out_code]) map[d.out_code] = d; });
-  var outcomes = Object.values(map);
-  sel.innerHTML = '<option value="">-- Select Outcome --</option>' +
-    outcomes.map(function(o) {
-      return '<option value="' + o.out_code + '">' + o.out_code + ': ' + o.out_stmt.slice(0,70) + (o.out_stmt.length>70?'...':'') + '</option>';
-    }).join('');
-  var clStrand = document.getElementById('cl-strand');
-  var clSub2 = document.getElementById('cl-substrand');
-  var clStmt = document.getElementById('cl-outcome-stmt');
-  var clWrap = document.getElementById('cl-ind-wrap');
-  if (clStrand) clStrand.value = '';
-  if (clSub2) clSub2.value = '';
-  if (clStmt) clStmt.value = '';
-  if (clWrap) clWrap.style.display = 'none';
-}
-
-
-function clFillFromOutcome() {
-  var code = document.getElementById('cl-outcome').value;
-  if (!code) return;
-  var grade = document.getElementById('cl-grade').value;
-  var sub = document.getElementById('cl-sub').value;
-  var data = getSyl(grade, sub).filter(function(d) { return d.out_code === code; });
-  if (!data.length) return;
-
-  // Fill strand, substrand, outcome statement
-  document.getElementById('cl-strand').value = data[0].strand;
-  document.getElementById('cl-substrand').value = data[0].substrand;
-  document.getElementById('cl-outcome-stmt').value = data[0].out_stmt;
-
-  // Fill indicators
-  var wrap = document.getElementById('cl-ind-wrap');
-  var indDiv = document.getElementById('cl-indicators');
-  wrap.style.display = 'block';
-  indDiv.innerHTML = data.map(function(d) {
-    return '<div class="cl-ind-item">'
-      + '<span class="cl-ind-code">' + d.ind_code + '</span>'
-      + '<span>' + d.indicator + '</span>'
-      + '</div>';
-  }).join('');
-}
-
-async function doChecklistDocx() {
-  var grade = document.getElementById('cl-grade').value;
-  var sub = document.getElementById('cl-sub').value;
-  var term = parseInt(document.getElementById('cl-term').value);
-  var outCode = document.getElementById('cl-outcome').value;
-  var school = document.getElementById('cl-school').value || '';
-  var numStudents = parseInt(document.getElementById('cl-students').value) || 23;
-
-  if (!outCode) { alert('Please select an outcome first.'); return; }
-
-  var data = getSyl(grade, sub).filter(function(d) { return d.out_code === outCode; });
-  if (!data.length) { alert('No indicators found for this outcome.'); return; }
-
-  var strand = data[0].strand;
-  var substrand = data[0].substrand;
-  var outStmt = data[0].out_stmt;
-  var indicators = data.map(function(d) { return { code: d.ind_code, text: d.indicator }; });
-
-  var btn = document.getElementById('cl-btn');
-  btn.disabled = true;
-  setStatus('cl-status', 'loading', '<span class="spin"></span> Generating checklist...');
-  setProgress('cl-prog', 'cl-bar', 50);
-
-  try {
-    var termName = ['', 'FIRST TERM', 'SECOND TERM'][term] || 'TERM ' + term;
-    var blob = await buildChecklistDocx({ school, grade, sub, term: termName, strand, substrand, outCode, outStmt, indicators, numStudents });
-    var url = URL.createObjectURL(blob);
-    var fname = outCode + '_Checklist_T' + term + '.docx';
-    setProgress('cl-prog', 'cl-bar', 100);
-    setStatus('cl-status', 'done', '&#10003; Checklist generated! <a class="dl-btn" href="' + url + '" download="' + fname + '">&#8681; Download ' + fname + '</a>');
-  } catch(e) {
-    setStatus('cl-status', 'error', '&#9888; ' + e.message);
-  }
-  btn.disabled = false;
-}
-
-
-// =====================================================================
-// BUILD SCHEME DOCX  (matches uploaded format)
-// =====================================================================
-async function buildSchemeDocx(opts) {
-  var _d=docx, Document=_d.Document, Packer=_d.Packer,
-      Paragraph=_d.Paragraph, TextRun=_d.TextRun,
-      Table=_d.Table, TableRow=_d.TableRow, TableCell=_d.TableCell,
-      AlignmentType=_d.AlignmentType, BorderStyle=_d.BorderStyle,
-      WidthType=_d.WidthType, ShadingType=_d.ShadingType,
-      PageOrientation=_d.PageOrientation;
-
-  // Landscape A4 content width = 16838 - 720*2 = 15398 DXA (0.5" margins)
-  var TW = 15398;
-  var GRAY  = {fill:"595959",type:ShadingType.CLEAR,color:"FFFFFF"};
-  var LGRAY = {fill:"D9D9D9",type:ShadingType.CLEAR,color:"000000"};
-  var BDR   = {style:BorderStyle.SINGLE,size:6,color:"000000"};
-  var BDRALL= {top:BDR,bottom:BDR,left:BDR,right:BDR,insideHorizontal:BDR,insideVertical:BDR};
-  var CM    = {top:80,bottom:80,left:100,right:100};
-
-  function P(text,opts){ opts=opts||{}; return new Paragraph({
-    children:[new TextRun({text:text||"",bold:opts.bold||false,size:opts.size||20,font:"Arial",color:opts.color||"000000"})],
-    alignment:opts.align||AlignmentType.LEFT, spacing:{after:opts.after||60}
-  });}
-  function TC(children,w,opts){
-    var o={children:Array.isArray(children)?children:[children],width:{size:w,type:WidthType.DXA},margins:CM,borders:BDRALL};
-    if(opts&&opts.shading)o.shading=opts.shading;
-    if(opts&&opts.span)o.columnSpan=opts.span;
-    if(opts&&opts.valign)o.verticalAlign=opts.valign;
-    return new TableCell(o);
-  }
-
-  // Col widths: WK|PD|Strand/Substrand|Topic|Outcomes|Indicators|Procedure|Resources|Assessment
-  var cols = [600, 700, 2000, 1800, 2100, 2200, 2500, 1600, 1898];
-
-  var termNames = {1:"Term 1  2026", 2:"Term 2  2026"};
-
-  var rows = [
-    // Header row 1: School / Term / Subject / Grade
-    new TableRow({children:[
-      TC([P(opts.school||"School",{bold:true,size:22})], cols[0]+cols[1]+cols[2]+cols[3], {shading:GRAY,span:4}),
-      TC([P("SCHEME OF WORK",{bold:true,size:24,color:"FFFFFF",align:AlignmentType.CENTER})], cols[4]+cols[5], {shading:GRAY,span:2}),
-      TC([P("Term: "+termNames[opts.term]||"Term 1",{bold:true,size:20,color:"FFFFFF"})], cols[6], {shading:GRAY}),
-      TC([P("Subject: "+opts.sub,{bold:true,size:20,color:"FFFFFF"})], cols[7], {shading:GRAY}),
-      TC([P("Grade: "+opts.grade,{bold:true,size:20,color:"FFFFFF"})], cols[8], {shading:GRAY}),
-    ]}),
-    // Teacher row
-    new TableRow({children:[
-      TC([P("Teacher: "+opts.teacher,{size:20})], TW, {span:9}),
-    ]}),
-    // Column headers
-    new TableRow({height:{value:400,rule:"atLeast"},children:[
-      TC([P("WK",{bold:true,size:19,align:AlignmentType.CENTER})], cols[0], {shading:LGRAY}),
-      TC([P("PD",{bold:true,size:19,align:AlignmentType.CENTER})], cols[1], {shading:LGRAY}),
-      TC([P("Strand / Substrand",{bold:true,size:19})], cols[2], {shading:LGRAY}),
-      TC([P("Topic / Theme",{bold:true,size:19})], cols[3], {shading:LGRAY}),
-      TC([P("Outcomes",{bold:true,size:19})], cols[4], {shading:LGRAY}),
-      TC([P("Indicators",{bold:true,size:19})], cols[5], {shading:LGRAY}),
-      TC([P("Procedure (Learning Activity)",{bold:true,size:19})], cols[6], {shading:LGRAY}),
-      TC([P("Resources",{bold:true,size:19})], cols[7], {shading:LGRAY}),
-      TC([P("Assessment & Evaluation",{bold:true,size:19})], cols[8], {shading:LGRAY}),
-    ]}),
-  ];
-
-  // Data rows
-  opts.rows.forEach(function(r) {
-    var indText = r.indicators.join("\n");
-    var activity = r.aiActivity || r.topic || "";
-    rows.push(new TableRow({height:{value:600,rule:"atLeast"},children:[
-      TC([P(r.wk?"WK"+r.wk:"",{size:18,align:AlignmentType.CENTER})], cols[0]),
-      TC([P(r.wkDates||"",{size:16})], cols[1]),
-      TC([P(r.strand,{bold:true,size:18}), P(r.substrand,{size:18})], cols[2]),
-      TC([P(r.topic||"",{size:18})], cols[3]),
-      TC([P(r.outCode,{bold:true,size:18}), P(r.outStmt,{size:16})], cols[4]),
-      TC(r.indicators.map(function(ind){ return P(ind,{size:16}); }), cols[5]),
-      TC([P(activity,{size:18})], cols[6]),
-      TC([P("",{size:18})], cols[7]),
-      TC([P("",{size:18})], cols[8]),
-    ]}));
-  });
-
-  var doc = new Document({
-    sections:[{
-      properties:{
-        page:{
-          size:{width:11906,height:16838,orientation:PageOrientation.LANDSCAPE},
-          margin:{top:720,right:720,bottom:720,left:720}
-        }
-      },
-      children:[
-        P(opts.sub+" Scheme of Work — "+opts.grade,{bold:true,size:26,after:200}),
-        new Table({width:{size:TW,type:WidthType.DXA},columnWidths:cols,rows:rows})
-      ]
-    }]
-  });
-  return await Packer.toBlob(doc);
-}
-
-// =====================================================================
-// BUILD CHECKLIST DOCX  (matches uploaded format)
-// =====================================================================
-async function buildChecklistDocx(opts) {
-  var _d=docx, Document=_d.Document, Packer=_d.Packer,
-      Paragraph=_d.Paragraph, TextRun=_d.TextRun,
-      Table=_d.Table, TableRow=_d.TableRow, TableCell=_d.TableCell,
-      AlignmentType=_d.AlignmentType, BorderStyle=_d.BorderStyle,
-      WidthType=_d.WidthType, ShadingType=_d.ShadingType;
-
-  var TW = 9360; // A4 portrait with 1" margins
-  var GRAY  = {fill:"595959",type:ShadingType.CLEAR,color:"FFFFFF"};
-  var LGRAY = {fill:"D9D9D9",type:ShadingType.CLEAR,color:"000000"};
-  var BDR   = {style:BorderStyle.SINGLE,size:6,color:"000000"};
-  var BDRALL= {top:BDR,bottom:BDR,left:BDR,right:BDR,insideHorizontal:BDR,insideVertical:BDR};
-  var CM    = {top:80,bottom:80,left:100,right:100};
-
-  var inds = opts.indicators || [];
-  var n = opts.numStudents || 23;
-
-  function P(text,opts2){ opts2=opts2||{}; return new Paragraph({
-    children:[new TextRun({text:text||"",bold:opts2.bold||false,size:opts2.size||20,font:"Arial",color:opts2.color||"000000"})],
-    alignment:opts2.align||AlignmentType.LEFT, spacing:{after:opts2.after||60}
-  });}
-  function TC(children,w,opts2){
-    var o={children:Array.isArray(children)?children:[children],width:{size:w,type:WidthType.DXA},margins:CM,borders:BDRALL};
-    if(opts2&&opts2.shading)o.shading=opts2.shading;
-    if(opts2&&opts2.span)o.columnSpan=opts2.span;
-    if(opts2&&opts2.rowSpan)o.rowSpan=opts2.rowSpan;
-    return new TableCell(o);
-  }
-
-  // Dynamic column widths based on number of indicators
-  var indW = Math.max(400, Math.floor(4000 / Math.max(inds.length,1)));
-  var nameW = 2800;
-  var idxW = 500;
-  var gradeW = 800;
-  // Remaining for indicators
-  var totalIndW = inds.length * indW;
-  // Adjust if too wide
-  if (idxW + nameW + totalIndW + gradeW > TW) {
-    indW = Math.floor((TW - idxW - nameW - gradeW) / Math.max(inds.length,1));
-  }
-  var colWidths = [idxW, nameW].concat(inds.map(function(){return indW;})).concat([gradeW]);
-
-  var tableRows = [];
-
-  // Row 1: School name
-  tableRows.push(new TableRow({children:[
-    TC([P(opts.school||"SCHOOL",{bold:true,size:24,align:AlignmentType.CENTER})], TW, {shading:GRAY,span:colWidths.length})
-  ]}));
-
-  // Row 2: Title
-  tableRows.push(new TableRow({children:[
-    TC([P("OUTCOME ASSESSMENT RECORD SHEET",{bold:true,size:22,align:AlignmentType.CENTER})], TW, {span:colWidths.length})
-  ]}));
-
-  // Row 3: Term
-  tableRows.push(new TableRow({children:[
-    TC([P(opts.term+"  "+new Date().getFullYear(),{bold:true,size:20,align:AlignmentType.CENTER})], TW, {span:colWidths.length})
-  ]}));
-
-  // Row 4: Subject / Class
-  tableRows.push(new TableRow({children:[
-    TC([P("SUBJECT:  "+opts.sub,{bold:true,size:20})], TW/2, {span:Math.ceil(colWidths.length/2)}),
-    TC([P("CLASS:  "+opts.grade,{bold:true,size:20})], TW/2, {span:Math.floor(colWidths.length/2)}),
-  ]}));
-
-  // Row 5: Strand
-  tableRows.push(new TableRow({children:[
-    TC([P("STRAND:   "+opts.strand,{size:20})], TW, {span:colWidths.length})
-  ]}));
-
-  // Row 6: Substrand
-  tableRows.push(new TableRow({children:[
-    TC([P("SUBSTRAND:   "+opts.substrand,{size:20})], TW, {span:colWidths.length})
-  ]}));
-
-  // Row 7: Outcome
-  tableRows.push(new TableRow({children:[
-    TC([P("OUTCOME:   "+opts.outCode+" — "+opts.outStmt,{size:20})], TW, {span:colWidths.length})
-  ]}));
-
-  // Row 8: "INDICATORS" header + indicator codes
-  var indHeaderCells = [
-    TC([P("INDICATORS",{bold:true,size:19,align:AlignmentType.CENTER})], idxW+nameW, {shading:LGRAY,span:2})
-  ];
-  inds.forEach(function(ind) {
-    indHeaderCells.push(TC([P(ind.code,{bold:true,size:16,align:AlignmentType.CENTER})], indW, {shading:LGRAY}));
-  });
-  indHeaderCells.push(TC([P("FINAL GRADE",{bold:true,size:16,align:AlignmentType.CENTER})], gradeW, {shading:LGRAY}));
-  tableRows.push(new TableRow({children:indHeaderCells}));
-
-  // Row 9: indicator text (abbreviated)
-  var indTextCells = [
-    TC([P("",{})], idxW+nameW, {span:2})
-  ];
-  inds.forEach(function(ind) {
-    var shortText = ind.text.length > 50 ? ind.text.slice(0,50)+"..." : ind.text;
-    indTextCells.push(TC([P(shortText,{size:14})], indW));
-  });
-  indTextCells.push(TC([P("",{})], gradeW));
-  tableRows.push(new TableRow({children:indTextCells}));
-
-  // Rows: Assessment Tool + Date
-  tableRows.push(new TableRow({children:[
-    TC([P("Assessment tool",{bold:true,size:18})], idxW+nameW, {shading:LGRAY,span:2}),
-    TC([P("",{})], totalIndW + gradeW, {span:inds.length+1})
-  ]}));
-  tableRows.push(new TableRow({children:[
-    TC([P("Assessment Date",{bold:true,size:18})], idxW+nameW, {shading:LGRAY,span:2}),
-    TC([P("",{})], totalIndW + gradeW, {span:inds.length+1})
-  ]}));
-
-  // Column headers row: # | Name | ind codes | Final Grade
-  var colHdrCells = [
-    TC([P("INDEX",{bold:true,size:18,align:AlignmentType.CENTER})], idxW, {shading:LGRAY}),
-    TC([P("NAME",{bold:true,size:18})], nameW, {shading:LGRAY}),
-  ];
-  inds.forEach(function(ind) {
-    colHdrCells.push(TC([P(ind.code,{bold:true,size:14,align:AlignmentType.CENTER})], indW, {shading:LGRAY}));
-  });
-  colHdrCells.push(TC([P("",{})], gradeW, {shading:LGRAY}));
-  tableRows.push(new TableRow({children:colHdrCells}));
-
-  // Student rows
-  for (var i = 1; i <= n; i++) {
-    var cells = [
-      TC([P(String(i),{size:18,align:AlignmentType.CENTER})], idxW),
-      TC([P("",{})], nameW),
-    ];
-    inds.forEach(function() { cells.push(TC([P("",{})], indW)); });
-    cells.push(TC([P("",{})], gradeW));
-    tableRows.push(new TableRow({height:{value:360,rule:"atLeast"},children:cells}));
-  }
-
-  // Summary rows
-  tableRows.push(new TableRow({children:[
-    TC([P("No. of students achieved:",{bold:true,size:18})], idxW+nameW, {shading:LGRAY,span:2}),
-    TC([P("",{})], totalIndW+gradeW, {span:inds.length+1})
-  ]}));
-  tableRows.push(new TableRow({children:[
-    TC([P("Fully Achieved (FA)",{size:18})], idxW+nameW, {span:2}),
-    TC([P("",{})], totalIndW+gradeW, {span:inds.length+1})
-  ]}));
-  tableRows.push(new TableRow({children:[
-    TC([P("Mostly Achieved (MA)",{size:18})], idxW+nameW, {span:2}),
-    TC([P("",{})], totalIndW+gradeW, {span:inds.length+1})
-  ]}));
-  tableRows.push(new TableRow({children:[
-    TC([P("Achieving (A)",{size:18})], idxW+nameW, {span:2}),
-    TC([P("",{})], totalIndW+gradeW, {span:inds.length+1})
-  ]}));
-
-  // Signature row
-  tableRows.push(new TableRow({children:[
-    TC([P("Checked by Leading Teacher: _______________________________",{size:18})], TW, {span:colWidths.length})
-  ]}));
-  tableRows.push(new TableRow({children:[
-    TC([P("Sign: _________________________",{size:18})], TW/2, {span:Math.ceil(colWidths.length/2)}),
-    TC([P("Date: ___________________",{size:18})], TW/2, {span:Math.floor(colWidths.length/2)})
-  ]}));
-
-  var doc = new Document({
-    sections:[{
-      properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},
-      children:[
-        new Table({width:{size:TW,type:WidthType.DXA},columnWidths:colWidths,rows:tableRows})
-      ]
-    }]
-  });
-  return await Packer.toBlob(doc);
-}
-
-
+</script>
+<script>
 // =====================================================================
 // BUILD DOCX FROM UPLOADED TEMPLATE
 // Maps generated lesson plan data to the uploaded template's structure
