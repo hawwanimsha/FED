@@ -411,6 +411,36 @@ body::before {
 .api-key-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #e8f8f0; border: 1px solid rgba(42,157,110,.3); border-radius: 8px; margin-bottom: 14px; font-size: 12px; color: #1a6642; font-weight: 700; }
 .api-key-row.needs-key { background: #fff8e1; border-color: #f0d5b0; color: var(--warn); }
 
+
+/* ── SCHEME STEPS ─────────────────────────────────────────────── */
+.step { margin-bottom: 18px; position: relative; padding-left: 36px; }
+.step::before { content: attr(data-step); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--ocean-pale); color: var(--ocean-deep); font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ocean-light); }
+.step.done::before { background: var(--success); color: #fff; border-color: var(--success); }
+.step.active::before { background: var(--ocean-deep); color: #fff; border-color: var(--ocean-deep); }
+.step.hidden .step-content { opacity: 0.3; pointer-events: none; }
+.step-label { font-size: 10px; font-weight: 800; color: var(--ocean-mid); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+.sch-info-box { background: var(--ocean-pale); border: 1px solid rgba(47,170,184,.3); border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-size: 12px; color: var(--ocean-deep); line-height: 1.6; }
+.ind-list { border: 1.5px solid var(--sand-dark); border-radius: 8px; padding: 8px; max-height: 200px; overflow-y: auto; background: #fafafa; }
+.ind-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 4px; border-bottom: 1px solid var(--sand-dark); font-size: 12px; line-height: 1.5; cursor: pointer; transition: background .1s; }
+.ind-item:last-child { border-bottom: none; }
+.ind-item:hover { background: var(--ocean-pale); }
+.ind-item input[type=checkbox] { margin-top: 3px; accent-color: var(--ocean-deep); flex-shrink: 0; }
+.ind-code { font-weight: 800; color: var(--ocean-mid); white-space: nowrap; min-width: 70px; }
+.res-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.res-tag { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--sand-dark); background: var(--sand); color: var(--text-mid); cursor: pointer; font-weight: 700; transition: all .15s; user-select: none; }
+.res-tag:hover { border-color: var(--ocean-light); color: var(--ocean-deep); }
+.res-tag.on { background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid)); border-color: transparent; color: #fff; }
+.toggle-row { display: flex; gap: 6px; margin-bottom: 10px; }
+.toggle-opt { padding: 7px 16px; font-size: 12px; font-weight: 700; border-radius: 20px; border: 1.5px solid var(--sand-dark); background: var(--sand); color: var(--text-mid); cursor: pointer; transition: all .15s; }
+.toggle-opt.on { background: var(--ocean-deep); border-color: var(--ocean-deep); color: #fff; }
+.btn-sm { width: auto; padding: 8px 18px; font-size: 12px; }
+.preview-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 14px; }
+.preview-table th { background: var(--ocean-deep); color: #fff; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 800; }
+.preview-table td { padding: 7px 10px; border-bottom: 1px solid var(--sand-dark); vertical-align: top; }
+.preview-table tr:hover td { background: var(--ocean-pale); }
+.row-del { color: #e0a0a0; cursor: pointer; font-size: 14px; border: none; background: none; }
+.row-del:hover { color: var(--coral); }
+
 @media(max-width:700px) {
   .g2,.g3,.g4 { grid-template-columns: 1fr 1fr; }
   .stabs { grid-template-columns: repeat(3,1fr); }
@@ -539,15 +569,156 @@ body::before {
 <!-- SCHEMES -->
 <div class="page" id="page-schemes">
 <div class="card">
-  <div class="card-title">Scheme of Work</div>
-  <div class="g3">
-    <div class="field"><label>Grade</label><select id="sch-grade"><option>Grade 2</option><option>Grade 4</option><option selected>Grade 5</option></select></div>
-    <div class="field"><label>Subject</label><select id="sch-sub"><option>Mathematics</option><option>English</option><option>Science</option><option>Social Studies</option><option>H.PE</option><option>Creative Arts</option></select></div>
-    <div class="field"><label>Term</label><select id="sch-term"><option value="0">All Terms</option><option value="1">Term 1</option><option value="2">Term 2</option></select></div>
+  <div class="card-title">Scheme of Work Generator</div>
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="field"><label class="step-label">Teacher Name</label>
+      <input type="text" id="sch-teacher" placeholder="e.g. Aminath Ali"></div>
+    <div class="field"><label class="step-label">School Name</label>
+      <input type="text" id="sch-school" placeholder="e.g. Seenu Atoll School"></div>
   </div>
-  <button class="btn btn-navy" style="margin-bottom:14px;" onclick="doScheme()">&#9654; Generate Scheme</button>
-  <div id="sch-out"></div>
-</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Add Scheme Row</div>
+
+  <div class="step active" data-step="1" id="step-grade">
+    <div class="step-label">Grade</div>
+    <div class="step-content field">
+      <select id="s-grade" onchange="onGradeChange()">
+        <option value="">-- Select Grade --</option>
+        <option>Grade 2</option><option>Grade 4</option><option>Grade 5</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="2" id="step-subject">
+    <div class="step-label">Subject</div>
+    <div class="step-content field">
+      <select id="s-subject" onchange="onSubjectChange()">
+        <option value="">-- Select Subject --</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="3" id="step-outcome">
+    <div class="step-label">Outcome</div>
+    <div class="step-content field">
+      <select id="s-outcome" onchange="onOutcomeChange()">
+        <option value="">-- Select Outcome --</option>
+      </select>
+    </div>
+    <div class="sch-info-box" id="outcome-info" style="display:none;"></div>
+  </div>
+
+  <div class="step hidden" data-step="4" id="step-indicators">
+    <div class="step-label">Indicators (tick the ones to cover)</div>
+    <div class="step-content">
+      <div class="ind-list" id="ind-list"></div>
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="5" id="step-week">
+    <div class="step-label">Week</div>
+    <div class="step-content field">
+      <select id="s-week" onchange="onWeekChange()">
+        <option value="">-- Select Week --</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="6" id="step-term">
+    <div class="step-label">Term <span style="font-size:9px;color:var(--text-light);">(auto-filled)</span></div>
+    <div class="step-content field">
+      <input type="text" id="s-term" readonly style="background:#f0f0f0;color:var(--text-mid);">
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="7" id="step-period">
+    <div class="step-label">Period(s) <span style="font-size:9px;color:var(--text-light);">(select up to 10)</span></div>
+    <div class="step-content field">
+      <select id="s-period">
+        <option value="1">1 period</option><option value="2">2 periods</option>
+        <option value="3">3 periods</option><option value="4">4 periods</option>
+        <option value="5">5 periods</option><option value="6">6 periods</option>
+        <option value="7">7 periods</option><option value="8">8 periods</option>
+        <option value="9">9 periods</option><option value="10">10 periods</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="8" id="step-activity">
+    <div class="step-label">Learning Activity</div>
+    <div class="step-content">
+      <div class="toggle-row">
+        <span class="toggle-opt on" onclick="setActivityMode('write',this)">Write my own</span>
+        <span class="toggle-opt" onclick="setActivityMode('ai',this)">Generate with AI</span>
+      </div>
+      <div id="activity-write">
+        <div class="field"><textarea id="s-activity" placeholder="Describe the learning activity..."></textarea></div>
+      </div>
+      <div id="activity-ai" style="display:none;">
+        <button class="btn btn-orange btn-sm" onclick="schGenerateActivity()">&#10024; Generate Activity</button>
+        <div id="activity-ai-result" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="9" id="step-resources">
+    <div class="step-label">Resources (select all that apply)</div>
+    <div class="step-content">
+      <div class="res-tags" id="res-tags">
+        <span class="res-tag" onclick="toggleRes(this)" data-val="Textbook">&#128214; Textbook</span>
+        <span class="res-tag" onclick="toggleRes(this)" data-val="Teacher Presentation">&#128202; Presentation</span>
+        <span class="res-tag" onclick="toggleRes(this)" data-val="Video">&#127909; Video</span>
+        <span class="res-tag" onclick="toggleRes(this)" data-val="Worksheet">&#128221; Worksheet</span>
+        <span class="res-tag" onclick="toggleRes(this)" data-val="Manipulatives">&#129513; Manipulatives</span>
+        <span class="res-tag" onclick="toggleRes(this)" data-val="Whiteboard">&#128203; Whiteboard</span>
+        <span class="res-tag" onclick="toggleRes(this)" data-val="Online tool">&#128187; Online tool</span>
+      </div>
+      <div class="field" style="margin-top:6px;">
+        <input type="text" id="s-resource-custom" placeholder="Type custom resource and press Enter" onkeydown="if(event.key==='Enter'){addCustomRes();event.preventDefault();}">
+      </div>
+      <div id="custom-res-list" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <div class="step hidden" data-step="10" id="step-assessment">
+    <div class="step-label">Assessment &amp; Evaluation</div>
+    <div class="step-content">
+      <div class="toggle-row">
+        <span class="toggle-opt on" onclick="setAssessMode('write',this)">Write my own</span>
+        <span class="toggle-opt" onclick="setAssessMode('ai',this)">Generate with AI</span>
+      </div>
+      <div id="assess-write">
+        <div class="field"><textarea id="s-assessment" placeholder="Describe the assessment method..."></textarea></div>
+      </div>
+      <div id="assess-ai" style="display:none;">
+        <button class="btn btn-orange btn-sm" onclick="schGenerateAssessment()">&#10024; Generate Assessment</button>
+        <div id="assess-ai-result" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-navy" style="margin-top:10px;" onclick="addRowToScheme()">+ Add This Row to Scheme</button>
+</div>
+
+<div class="card" id="preview-card" style="display:none;">
+  <div class="card-title">Scheme Preview</div>
+  <div style="overflow-x:auto;">
+    <table class="preview-table" id="preview-table">
+      <thead><tr>
+        <th>WK</th><th>PD</th><th>Strand/Substrand</th><th>Outcome</th>
+        <th>Indicators</th><th>Activity</th><th>Resources</th><th>Assessment</th><th></th>
+      </tr></thead>
+      <tbody id="preview-body"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:16px;">
+    <button class="btn btn-green" onclick="downloadScheme()">&#11015; Download Scheme (.docx)</button>
+  </div>
+  <div class="status" id="sch-status"></div>
+</div>
+</div>
 
 <!-- CHECKLISTS -->
 <div class="page" id="page-checklists">
@@ -2073,153 +2244,357 @@ async function doGenerate() {
   btn.disabled=false;
 }
 
-function doScheme() {
-  var grade=document.getElementById("sch-grade").value;
-  var sub=document.getElementById("sch-sub").value;
-  var term=parseInt(document.getElementById("sch-term").value);
+
+// =====================================================================
+// SCHEME OF WORK — CASCADING STEP BUILDER
+// =====================================================================
+var schemeRows = [];
+var schActivityMode = 'write';
+var schAssessMode = 'write';
+var schCustomResources = [];
+var schCurrentOutcomeData = [];
+
+function showStep(id) { var el=document.getElementById(id); if(el){el.classList.remove('hidden');el.classList.add('active');} }
+function hideStep(id) { var el=document.getElementById(id); if(el){el.classList.add('hidden');el.classList.remove('active','done');} }
+function doneStep(id) { var el=document.getElementById(id); if(el){el.classList.remove('hidden','active');el.classList.add('done');} }
+function schResetFrom(n) {
+  var steps=['step-grade','step-subject','step-outcome','step-indicators','step-week','step-term','step-period','step-activity','step-resources','step-assessment'];
+  for(var i=n;i<steps.length;i++) hideStep(steps[i]);
+}
+
+function onGradeChange() {
+  var grade=document.getElementById('s-grade').value;
+  schResetFrom(1);
+  if(!grade) return;
+  doneStep('step-grade');
+  var subs=[];
+  SYLLABUS.forEach(function(d){ if(d.grade===grade && subs.indexOf(d.subject)<0) subs.push(d.subject); });
+  document.getElementById('s-subject').innerHTML = '<option value="">-- Select Subject --</option>' +
+    subs.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+  showStep('step-subject');
+}
+
+function onSubjectChange() {
+  var sub=document.getElementById('s-subject').value;
+  schResetFrom(2);
+  if(!sub) return;
+  doneStep('step-subject');
+  var grade=document.getElementById('s-grade').value;
   var data=getSyl(grade,sub);
-  if(!data.length){document.getElementById("sch-out").innerHTML="<p style='color:#888;padding:10px;'>No scheme data for "+grade+" "+sub+". Available: Grade 2 (Maths, Science, H.PE, Creative Arts, English) and Grade 5 (English, Science, Social Studies).</p>";return;}
-  var outMap={};
-  data.forEach(function(d){
-    if(!outMap[d.out_code])outMap[d.out_code]={code:d.out_code,stmt:d.out_stmt,strand:d.strand,sub:d.substrand,inds:[]};
-    outMap[d.out_code].inds.push(d.ind_code+": "+d.indicator);
+  var map={};
+  data.forEach(function(d){ if(!map[d.out_code]) map[d.out_code]={code:d.out_code,stmt:d.out_stmt,strand:d.strand,substrand:d.substrand}; });
+  var outcomes=Object.values(map);
+  document.getElementById('s-outcome').innerHTML = '<option value="">-- Select Outcome --</option>' +
+    outcomes.map(function(o){
+      var short=o.stmt.length>80?o.stmt.slice(0,80)+'...':o.stmt;
+      return '<option value="'+o.code+'">'+o.code+': '+short+'</option>';
+    }).join('');
+  showStep('step-outcome');
+}
+
+function onOutcomeChange() {
+  var code=document.getElementById('s-outcome').value;
+  schResetFrom(3);
+  if(!code) return;
+  doneStep('step-outcome');
+  var grade=document.getElementById('s-grade').value;
+  var sub=document.getElementById('s-subject').value;
+  schCurrentOutcomeData = getSyl(grade,sub).filter(function(d){return d.out_code===code;});
+  if(schCurrentOutcomeData.length){
+    var d=schCurrentOutcomeData[0];
+    var info=document.getElementById('outcome-info');
+    info.style.display='block';
+    info.innerHTML='<b>Strand:</b> '+d.strand+'<br><b>Sub-strand:</b> '+d.substrand+'<br><b>Outcome:</b> '+d.out_stmt;
+  }
+  document.getElementById('ind-list').innerHTML = schCurrentOutcomeData.map(function(d,i){
+    return '<label class="ind-item"><input type="checkbox" checked data-code="'+d.ind_code+'" data-text="'+d.indicator.replace(/"/g,'&quot;')+'" onchange="onIndicatorsChange()">'
+      +'<span class="ind-code">'+d.ind_code+'</span><span>'+d.indicator+'</span></label>';
+  }).join('');
+  showStep('step-indicators');
+  onIndicatorsChange();
+}
+
+function onIndicatorsChange() {
+  var checked=document.querySelectorAll('#ind-list input:checked');
+  if(checked.length>0){
+    doneStep('step-indicators');
+    var sel=document.getElementById('s-week');
+    sel.innerHTML='<option value="">-- Select Week --</option>'+
+      CAL.map(function(w){return '<option value="'+w.wk+'">WK'+w.wk+' T'+w.term+' ('+fmtShort(w.start)+') ['+w.type+']</option>';}).join('');
+    showStep('step-week');
+  } else { schResetFrom(4); }
+}
+
+function onWeekChange() {
+  var wk=parseInt(document.getElementById('s-week').value);
+  schResetFrom(5);
+  if(!wk) return;
+  doneStep('step-week');
+  var w=getWeek(wk);
+  document.getElementById('s-term').value = w ? 'Term '+w.term+' ('+fmtLong(w.start)+' \u2013 '+fmtLong(w.end)+')' : '';
+  showStep('step-term'); doneStep('step-term');
+  showStep('step-period');
+  showStep('step-activity');
+  showStep('step-resources');
+  showStep('step-assessment');
+}
+
+function setActivityMode(mode,el) {
+  schActivityMode=mode;
+  el.parentNode.querySelectorAll('.toggle-opt').forEach(function(t){t.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('activity-write').style.display=mode==='write'?'block':'none';
+  document.getElementById('activity-ai').style.display=mode==='ai'?'block':'none';
+}
+
+async function schGenerateActivity() {
+  var key=document.getElementById('api-key')?document.getElementById('api-key').value.trim():'';
+  var grade=document.getElementById('s-grade').value;
+  var sub=document.getElementById('s-subject').value;
+  var code=document.getElementById('s-outcome').value;
+  var stmt=schCurrentOutcomeData.length?schCurrentOutcomeData[0].out_stmt:'';
+  var checked=schGetCheckedIndicators();
+  var resultDiv=document.getElementById('activity-ai-result');
+  resultDiv.innerHTML='<span class="spin"></span> Generating...';
+  try {
+    var prompt='Suggest a concise learning activity (2-3 sentences) for '+grade+' '+sub+'. Outcome: '+code+' '+stmt+'. Indicators: '+checked.map(function(c){return c.code;}).join(', ')+'. Use Maldivian context. Return ONLY the activity text, no JSON, no markdown.';
+    var headers={"Content-Type":"application/json","anthropic-version":"2023-06-01"};
+    if(key) headers["x-api-key"]=key;
+    var token=localStorage.getItem("boli_token"); if(token) headers["Authorization"]="Bearer "+token;
+    var resp=await fetch("/api/messages",{method:"POST",headers:headers,
+      body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:500,messages:[{role:"user",content:prompt}]})});
+    if(!resp.ok){var errB=await resp.text();throw new Error('API error ('+resp.status+'): '+errB.slice(0,150));}
+    var data=await resp.json();
+    if(!data.content||!data.content[0])throw new Error('Empty AI response');
+    var text=data.content[0].text.trim();
+    resultDiv.innerHTML='<div style="background:var(--ocean-pale);border-radius:8px;padding:10px;font-size:13px;line-height:1.6;">'+text+'</div>'
+      +'<button class="btn btn-sm btn-navy" style="margin-top:8px;" onclick="useAiActivity()">Use this activity</button>';
+    resultDiv.dataset.aiText=text;
+  }catch(e){resultDiv.innerHTML='<span style="color:var(--coral);">Error: '+e.message+'</span>';}
+}
+
+function useAiActivity(){
+  var text=document.getElementById('activity-ai-result').dataset.aiText||'';
+  document.getElementById('s-activity').value=text;
+  setActivityMode('write',document.querySelector('#step-activity .toggle-opt'));
+}
+
+function setAssessMode(mode,el) {
+  schAssessMode=mode;
+  el.parentNode.querySelectorAll('.toggle-opt').forEach(function(t){t.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('assess-write').style.display=mode==='write'?'block':'none';
+  document.getElementById('assess-ai').style.display=mode==='ai'?'block':'none';
+}
+
+async function schGenerateAssessment() {
+  var key=document.getElementById('api-key')?document.getElementById('api-key').value.trim():'';
+  var grade=document.getElementById('s-grade').value;
+  var sub=document.getElementById('s-subject').value;
+  var code=document.getElementById('s-outcome').value;
+  var stmt=schCurrentOutcomeData.length?schCurrentOutcomeData[0].out_stmt:'';
+  var resultDiv=document.getElementById('assess-ai-result');
+  resultDiv.innerHTML='<span class="spin"></span> Generating...';
+  try {
+    var prompt='Suggest a concise assessment/evaluation method (1-2 sentences) for '+grade+' '+sub+'. Outcome: '+code+' '+stmt+'. Include how to check student understanding. Return ONLY the assessment text, no JSON, no markdown.';
+    var headers={"Content-Type":"application/json","anthropic-version":"2023-06-01"};
+    if(key) headers["x-api-key"]=key;
+    var token=localStorage.getItem("boli_token"); if(token) headers["Authorization"]="Bearer "+token;
+    var resp=await fetch("/api/messages",{method:"POST",headers:headers,
+      body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:400,messages:[{role:"user",content:prompt}]})});
+    if(!resp.ok){var errB2=await resp.text();throw new Error('API error ('+resp.status+'): '+errB2.slice(0,150));}
+    var data=await resp.json();
+    if(!data.content||!data.content[0])throw new Error('Empty AI response');
+    var text=data.content[0].text.trim();
+    resultDiv.innerHTML='<div style="background:var(--ocean-pale);border-radius:8px;padding:10px;font-size:13px;line-height:1.6;">'+text+'</div>'
+      +'<button class="btn btn-sm btn-navy" style="margin-top:8px;" onclick="useAiAssess()">Use this assessment</button>';
+    resultDiv.dataset.aiText=text;
+  }catch(e){resultDiv.innerHTML='<span style="color:var(--coral);">Error: '+e.message+'</span>';}
+}
+
+function useAiAssess(){
+  var text=document.getElementById('assess-ai-result').dataset.aiText||'';
+  document.getElementById('s-assessment').value=text;
+  setAssessMode('write',document.querySelector('#step-assessment .toggle-opt'));
+}
+
+function toggleRes(el){el.classList.toggle('on');}
+function addCustomRes(){
+  var input=document.getElementById('s-resource-custom');
+  var val=input.value.trim(); if(!val)return;
+  schCustomResources.push(val); input.value=''; renderCustomRes();
+}
+function renderCustomRes(){
+  document.getElementById('custom-res-list').innerHTML=schCustomResources.map(function(r,i){
+    return '<span class="res-tag on" style="padding-right:6px;">'+r+' <span onclick="removeCustomRes('+i+')" style="cursor:pointer;margin-left:4px;opacity:.7;">x</span></span>';
+  }).join('');
+}
+function removeCustomRes(i){schCustomResources.splice(i,1);renderCustomRes();}
+function getSelectedResources(){
+  var sel=[];
+  document.querySelectorAll('#res-tags .res-tag.on').forEach(function(t){sel.push(t.getAttribute('data-val'));});
+  return sel.concat(schCustomResources);
+}
+function schGetCheckedIndicators(){
+  var r=[];
+  document.querySelectorAll('#ind-list input:checked').forEach(function(cb){
+    r.push({code:cb.getAttribute('data-code'),text:cb.getAttribute('data-text')});
   });
-  var outcomes=Object.values(outMap);
-  var weeks=term>0?CAL.filter(function(w){return w.term===term&&w.type!=="Mid-Break"&&w.type!=="PD"&&w.type!=="Non-Teaching";}):CAL.filter(function(w){return w.type!=="Mid-Break"&&w.type!=="PD"&&w.type!=="Non-Teaching";});
-  var html="<div style='overflow-x:auto'><table class='sch-table'><thead><tr><th>Week</th><th>Term</th><th>Dates</th><th>Strand</th><th>Sub-strand</th><th>Outcome</th><th>Indicators</th></tr></thead><tbody>";
-  outcomes.forEach(function(out,i){
-    var w=weeks[i%weeks.length]; if(!w)return;
-    var typeCls={"Teaching":"","Exam":"exam","Reflection":"reflect","Camps":""}[w.type]||"";
-    html+="<tr><td><span class='wk-badge "+typeCls+"'>WK"+w.wk+"</span></td><td>T"+w.term+"</td>";
-    html+="<td style='white-space:nowrap;font-size:11px;'>"+fmtLong(w.start)+"–"+fmtLong(w.end)+"</td>";
-    html+="<td>"+out.strand+"</td><td>"+out.sub+"</td>";
-    html+="<td><b>"+out.code+"</b><br><span style='font-size:11px;color:#555;'>"+out.stmt+"</span></td>";
-    html+="<td>"+out.inds.map(function(x){return"<span style='display:block;font-size:11px;margin-bottom:2px;'>&#8226; "+x+"</span>";}).join("")+"</td></tr>";
+  return r;
+}
+
+function addRowToScheme(){
+  var grade=document.getElementById('s-grade').value;
+  var sub=document.getElementById('s-subject').value;
+  var outCode=document.getElementById('s-outcome').value;
+  var wk=document.getElementById('s-week').value;
+  if(!grade||!sub||!outCode||!wk){alert('Please complete Grade, Subject, Outcome and Week.');return;}
+  var w=getWeek(parseInt(wk));
+  var indicators=schGetCheckedIndicators();
+  var d=schCurrentOutcomeData[0]||{};
+  schemeRows.push({
+    grade:grade, subject:sub, wk:wk,
+    wkDates:w?fmtLong(w.start)+' \u2013 '+fmtLong(w.end):'',
+    term:w?w.term:'', pd:w?w.type:'',
+    period:document.getElementById('s-period').value||'1',
+    strand:d.strand||'', substrand:d.substrand||'',
+    outCode:outCode, outStmt:d.out_stmt||'',
+    indicators:indicators,
+    activity:document.getElementById('s-activity').value||'',
+    resources:getSelectedResources(),
+    assessment:document.getElementById('s-assessment').value||''
   });
-  html+="</tbody></table></div>";
-  document.getElementById("sch-out").innerHTML=html;
+  renderSchemePreview();
+  schResetKeepGradeSub();
 }
 
-async function doChecklist() {
-  var key=document.getElementById("cl-key").value.trim();
-  if(!key){alert("Please enter your API key.");return;}
-  var grade=document.getElementById("cl-grade").value;
-  var sub=document.getElementById("cl-sub").value;
-  var type=document.getElementById("cl-type").value;
-  var topic=document.getElementById("cl-topic").value;
-  var n=parseInt(document.getElementById("cl-students").value)||25;
-  var btn=document.getElementById("cl-btn"); btn.disabled=true;
-  setStatus("cl-status","loading","<span class='spin'></span> Generating...");
-  setProgress("cl-prog","cl-bar",30);
-  try {
-    var prompt="Create a teacher "+type+" checklist for "+grade+" "+sub+(topic?" topic: "+topic:"")+". Generate 8-12 observable, measurable criteria appropriate for this grade. Respond ONLY with valid JSON: {\"title\":\"...\",\"criteria\":[\"criterion 1\",\"criterion 2\"]}";
-    var res=await callAPI(key,prompt,800);
-    setProgress("cl-prog","cl-bar",100);
-    setStatus("cl-status","done","&#10003; Checklist ready!");
-    var rows="";
-    for(var i=0;i<n;i++){
-      rows+="<tr><td>"+(i+1)+"</td><td style='min-width:140px;'>___________________</td>";
-      res.criteria.forEach(function(){rows+="<td style='text-align:center;'><div style='display:inline-block;width:20px;height:20px;border:2px solid #1a2e42;border-radius:50%;'></div></td>";});
-      rows+="<td></td></tr>";
-    }
-    var ths="<th>#</th><th>Student Name</th>"+res.criteria.map(function(c){return"<th style='font-size:10px;max-width:80px;'>"+c+"</th>";}).join("")+"<th>Notes</th>";
-    document.getElementById("cl-out").innerHTML="<h3 style='margin:12px 0 8px;font-size:14px;color:#1a2e42;'>"+res.title+"</h3><div style='overflow-x:auto'><table class='sch-table'><thead><tr>"+ths+"</tr></thead><tbody>"+rows+"</tbody></table></div><button class='btn btn-green' style='margin-top:10px;width:auto;padding:8px 20px;' onclick='window.print()'>&#128424; Print</button>";
-  } catch(e){setStatus("cl-status","error","&#9888; "+e.message);}
-  btn.disabled=false;
+function schResetKeepGradeSub(){
+  var grade=document.getElementById('s-grade').value;
+  var sub=document.getElementById('s-subject').value;
+  document.getElementById('s-outcome').innerHTML='<option value="">-- Select Outcome --</option>';
+  document.getElementById('s-week').innerHTML='<option value="">-- Select Week --</option>';
+  document.getElementById('s-term').value='';
+  var periodEl=document.getElementById('s-period'); if(periodEl) periodEl.value='1';
+  document.getElementById('s-activity').value='';
+  document.getElementById('s-assessment').value='';
+  var rcInput=document.getElementById('s-resource-custom'); if(rcInput) rcInput.value='';
+  document.getElementById('ind-list').innerHTML='';
+  document.getElementById('outcome-info').style.display='none';
+  var air=document.getElementById('activity-ai-result'); if(air) air.innerHTML='';
+  var asr=document.getElementById('assess-ai-result'); if(asr) asr.innerHTML='';
+  schCustomResources=[]; renderCustomRes();
+  document.querySelectorAll('#res-tags .res-tag').forEach(function(t){t.classList.remove('on');});
+  schResetFrom(2);
+  doneStep('step-grade'); doneStep('step-subject');
+  if(grade&&sub){
+    var data=getSyl(grade,sub);
+    var map={};
+    data.forEach(function(d){if(!map[d.out_code])map[d.out_code]={code:d.out_code,stmt:d.out_stmt};});
+    var outcomes=Object.values(map);
+    document.getElementById('s-outcome').innerHTML='<option value="">-- Select Outcome --</option>'+
+      outcomes.map(function(o){var short=o.stmt.length>80?o.stmt.slice(0,80)+'...':o.stmt;return '<option value="'+o.code+'">'+o.code+': '+short+'</option>';}).join('');
+    showStep('step-outcome');
+  }
 }
 
-async function doReportCard() {
-  var key=document.getElementById("rc-key").value.trim();
-  if(!key){alert("Please enter your API key.");return;}
-  var grade=document.getElementById("rc-grade").value;
-  var sub=document.getElementById("rc-sub").value;
-  var name=document.getElementById("rc-name").value||"the student";
-  var gender=document.getElementById("rc-gender").value;
-  var level=document.getElementById("rc-level").value;
-  var strengths=document.getElementById("rc-strengths").value;
-  var improve=document.getElementById("rc-improve").value;
-  var notes=document.getElementById("rc-notes").value;
-  var tone=document.getElementById("rc-tone").value;
-  var pro=gender==="F"?"she/her/her":"he/him/his";
-  var btn=document.getElementById("rc-btn"); btn.disabled=true;
-  setStatus("rc-status","loading","<span class='spin'></span> Generating...");
-  setProgress("rc-prog","rc-bar",30);
-  try {
-    var prompt="Write 3 "+tone+" report card comment variations for a "+grade+" "+sub+" student at Boli.\nStudent: "+name+" (pronouns: "+pro+")\nPerformance: "+level+"\n"+(strengths?"Strengths: "+strengths+"\n":"")+(improve?"Improve: "+improve+"\n":"")+(notes?"Context: "+notes+"\n":"")
-    +"\nEach: 2-4 sentences, professional, specific, use student name & correct pronouns, include academic reference and forward-looking statement.\nRespond ONLY with valid JSON: {\"comments\":[\"comment1\",\"comment2\",\"comment3\"]}";
-    var res=await callAPI(key,prompt,800);
-    setProgress("rc-prog","rc-bar",100);
-    setStatus("rc-status","done","&#10003; Done — click Copy to use");
-    document.getElementById("rc-out").innerHTML=res.comments.map(function(c,i){
-      var safe=c.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-      return"<div class='out-box' style='margin-bottom:10px;'><div style='font-size:10px;font-weight:700;color:#888;margin-bottom:6px;'>OPTION "+(i+1)+"</div><div style='font-size:13px;line-height:1.7;'>"+c+"</div><button class='copy-btn' onclick='navigator.clipboard.writeText(\""+safe+"\").then(function(){alert(\"Copied!\")})'>&#128203; Copy</button></div>";
-    }).join("");
-  } catch(e){setStatus("rc-status","error","&#9888; "+e.message);}
-  btn.disabled=false;
+function renderSchemePreview(){
+  var card=document.getElementById('preview-card');
+  var tbody=document.getElementById('preview-body');
+  if(!schemeRows.length){card.style.display='none';return;}
+  card.style.display='block';
+  tbody.innerHTML=schemeRows.map(function(r,i){
+    return '<tr><td><b>WK'+r.wk+'</b><br><span style="font-size:10px;color:var(--text-light);">T'+r.term+'</span></td>'
+      +'<td>'+(r.period||'1')+' pd</td>'
+      +'<td><b>'+r.strand+'</b><br>'+r.substrand+'</td>'
+      +'<td>'+r.outCode+': '+r.outStmt.slice(0,60)+'</td>'
+      +'<td>'+r.indicators.map(function(ind){return '<span style="display:block;font-size:11px;margin-bottom:2px;">'+ind.code+'</span>';}).join('')+'</td>'
+      +'<td style="font-size:11px;">'+r.activity.slice(0,80)+'</td>'
+      +'<td style="font-size:11px;">'+r.resources.join(', ')+'</td>'
+      +'<td style="font-size:11px;">'+r.assessment.slice(0,60)+'</td>'
+      +'<td><button class="row-del" onclick="deleteSchemeRow('+i+')">&#128465;</button></td></tr>';
+  }).join('');
+}
+function deleteSchemeRow(i){schemeRows.splice(i,1);renderSchemePreview();}
+
+async function downloadScheme(){
+  if(!schemeRows.length){alert('No rows to download.');return;}
+  var _d=docx,Document=_d.Document,Packer=_d.Packer,Paragraph=_d.Paragraph,TextRun=_d.TextRun,
+      Table=_d.Table,TableRow=_d.TableRow,TableCell=_d.TableCell,
+      AlignmentType=_d.AlignmentType,BorderStyle=_d.BorderStyle,
+      WidthType=_d.WidthType,ShadingType=_d.ShadingType,PageOrientation=_d.PageOrientation;
+
+  var TW=15398;
+  var GRAY={fill:"595959",type:ShadingType.CLEAR,color:"FFFFFF"};
+  var LGRAY={fill:"D9D9D9",type:ShadingType.CLEAR,color:"000000"};
+  var BDR={style:BorderStyle.SINGLE,size:6,color:"000000"};
+  var CM={top:80,bottom:80,left:100,right:100};
+  function P(text,opts){opts=opts||{};return new Paragraph({
+    children:[new TextRun({text:text||"",bold:opts.bold||false,size:opts.size||20,font:"Arial",color:opts.color||"000000"})],
+    alignment:opts.align||AlignmentType.LEFT,spacing:{after:opts.after||60}});}
+  function TC(children,w,opts){
+    var o={children:Array.isArray(children)?children:[children],width:{size:w,type:WidthType.DXA},margins:CM};
+    if(opts&&opts.shading)o.shading=opts.shading;
+    if(opts&&opts.span)o.columnSpan=opts.span;
+    return new TableCell(o);}
+
+  var teacher=document.getElementById('sch-teacher').value||'';
+  var school=document.getElementById('sch-school').value||'';
+  var r0=schemeRows[0];
+  var cols=[600,500,1800,1500,2100,2200,2500,1800,2398];
+
+  var tableRows=[
+    new TableRow({children:[
+      TC([P("SCHEME OF WORK",{bold:true,size:22,color:"FFFFFF",align:AlignmentType.CENTER})],cols[0]+cols[1]+cols[2]+cols[3],{shading:GRAY,span:4}),
+      TC([P("Term: "+r0.term,{bold:true,size:20,color:"FFFFFF"})],cols[4]+cols[5],{shading:GRAY,span:2}),
+      TC([P("Subject: "+r0.subject,{bold:true,size:20,color:"FFFFFF"})],cols[6],{shading:GRAY}),
+      TC([P("Grade: "+r0.grade,{bold:true,size:20,color:"FFFFFF"})],cols[7]+cols[8],{shading:GRAY,span:2})
+    ]}),
+    new TableRow({children:[
+      TC([P("Teacher: "+teacher+"    |    School: "+school,{size:20})],TW,{span:9})
+    ]}),
+    new TableRow({children:[
+      TC([P("WK",{bold:true,size:18,align:AlignmentType.CENTER})],cols[0],{shading:LGRAY}),
+      TC([P("PD",{bold:true,size:18,align:AlignmentType.CENTER})],cols[1],{shading:LGRAY}),
+      TC([P("Strand / Substrand",{bold:true,size:18})],cols[2],{shading:LGRAY}),
+      TC([P("Topic/Theme",{bold:true,size:18})],cols[3],{shading:LGRAY}),
+      TC([P("Outcomes",{bold:true,size:18})],cols[4],{shading:LGRAY}),
+      TC([P("Indicators",{bold:true,size:18})],cols[5],{shading:LGRAY}),
+      TC([P("Procedure (learning activity)",{bold:true,size:18})],cols[6],{shading:LGRAY}),
+      TC([P("Resources",{bold:true,size:18})],cols[7],{shading:LGRAY}),
+      TC([P("Assessment & Evaluation",{bold:true,size:18})],cols[8],{shading:LGRAY})
+    ]})
+  ];
+
+  schemeRows.forEach(function(r){
+    tableRows.push(new TableRow({height:{value:600,rule:"atLeast"},children:[
+      TC([P("WK"+r.wk,{size:18,align:AlignmentType.CENTER})],cols[0]),
+      TC([P((r.period||"1")+" pd",{size:16,align:AlignmentType.CENTER})],cols[1]),
+      TC([P(r.strand,{bold:true,size:18}),P(r.substrand,{size:16})],cols[2]),
+      TC([P("",{size:18})],cols[3]),
+      TC([P(r.outCode,{bold:true,size:18}),P(r.outStmt,{size:16})],cols[4]),
+      TC(r.indicators.map(function(ind){return P(ind.code+": "+ind.text,{size:16});}),cols[5]),
+      TC([P(r.activity||"",{size:18})],cols[6]),
+      TC([P(r.resources.join(", "),{size:18})],cols[7]),
+      TC([P(r.assessment||"",{size:18})],cols[8])
+    ]}));
+  });
+
+  var borders={top:BDR,bottom:BDR,left:BDR,right:BDR,insideHorizontal:BDR,insideVertical:BDR};
+  var doc=new Document({
+    sections:[{
+      properties:{page:{size:{width:16838,height:11906,orientation:PageOrientation.LANDSCAPE},margin:{top:500,right:500,bottom:500,left:500}}},
+      children:[new Table({width:{size:TW,type:WidthType.DXA},borders:borders,rows:tableRows})]
+    }]
+  });
+  var blob=await Packer.toBlob(doc);
+  var url=URL.createObjectURL(blob);
+  var fname=(r0.subject||"Scheme").replace(/\s+/g,"")+"_"+(r0.grade||"").replace(/\s+/g,"")+"_T"+(r0.term||"")+".docx";
+  var dlDiv=document.getElementById('sch-status');
+  dlDiv.className="status done";
+  dlDiv.style.display="block";
+  dlDiv.innerHTML='&#10003; Scheme ready! <a class="dl-btn" href="'+url+'" download="'+fname+'">&#11015; Download '+fname+'</a>';
 }
 
-async function doAssessment() {
-  var key=document.getElementById("as-key").value.trim();
-  if(!key){alert("Please enter your API key.");return;}
-  var grade=document.getElementById("as-grade").value;
-  var sub=document.getElementById("as-sub").value;
-  var blooms=document.getElementById("as-blooms").value;
-  var topic=document.getElementById("as-topic").value;
-  var num=parseInt(document.getElementById("as-num").value)||10;
-  if(!topic){alert("Please enter a topic.");return;}
-  var btn=document.getElementById("as-btn"); btn.disabled=true;
-  setStatus("as-status","loading","<span class='spin'></span> Generating "+currentAtype+"...");
-  setProgress("as-prog","as-bar",30);
-  var prompts={
-    "worksheet":"Create a differentiated worksheet for "+grade+" "+sub+" topic: "+topic+". Bloom's: "+blooms+". "+num+" questions across 3 levels (Below Average, Average, Above Average). Include Maldivian contexts. Respond ONLY with valid JSON: {\"title\":\"...\",\"sections\":[{\"level\":\"Level 1 - Below Average\",\"questions\":[{\"q\":\"...\",\"type\":\"short answer\"}]}]}",
-    "quiz":"Create a "+num+"-question quiz for "+grade+" "+sub+" topic: "+topic+". Bloom's: "+blooms+". Mix MCQ/true-false/short answer. Respond ONLY with valid JSON: {\"title\":\"...\",\"questions\":[{\"q\":\"...\",\"type\":\"MCQ\",\"options\":[\"a) ...\",\"b) ...\"],\"answer\":\"a\"}]}",
-    "rubric":"Create assessment rubric for "+grade+" "+sub+" task: "+topic+". 4-6 criteria, levels: Beginning/Developing/Achieving/Extending. Respond ONLY with valid JSON: {\"title\":\"...\",\"criteria\":[{\"name\":\"...\",\"levels\":{\"Beginning\":\"...\",\"Developing\":\"...\",\"Achieving\":\"...\",\"Extending\":\"...\"}}]}",
-    "exit_ticket":"Create 3 exit ticket options for "+grade+" "+sub+" topic: "+topic+". Each has 2-3 quick questions. Bloom's: "+blooms+". Respond ONLY with valid JSON: {\"title\":\"...\",\"tickets\":[{\"title\":\"Option 1\",\"questions\":[\"...\"]}]}",
-    "project":"Create project brief for "+grade+" "+sub+" topic: "+topic+". Bloom's: "+blooms+". Include overview, outcomes, tasks, success criteria, timeline, format. Respond ONLY with valid JSON: {\"title\":\"...\",\"overview\":\"...\",\"outcomes\":[\"...\"],\"tasks\":[\"...\"],\"criteria\":[\"...\"],\"timeline\":\"...\",\"format\":\"...\"}"
-  };
-  try {
-    var res=await callAPI(key,prompts[currentAtype],2000);
-    setProgress("as-prog","as-bar",100);
-    setStatus("as-status","done","&#10003; Generated!");
-    var html="<div class='out-box'><h3>"+(res.title||"Assessment")+"</h3>";
-    if(currentAtype==="worksheet"&&res.sections){
-      res.sections.forEach(function(s){
-        html+="<div style='font-size:12px;font-weight:700;background:#1a2e42;color:#fff;padding:5px 10px;border-radius:4px;margin:10px 0 6px;'>"+s.level+"</div>";
-        (s.questions||[]).forEach(function(q,i){
-          html+="<div style='margin-bottom:8px;font-size:13px;'><b>"+(i+1)+".</b> "+q.q;
-          if(q.options)html+="<br><span style='color:#555;font-size:11px;'>"+q.options.join(" &nbsp;")+"</span>";
-          html+="<div style='border-bottom:1px dashed #ccc;margin-top:4px;height:18px;'></div></div>";
-        });
-      });
-    } else if(currentAtype==="quiz"&&res.questions){
-      res.questions.forEach(function(q,i){
-        html+="<div style='margin-bottom:10px;font-size:13px;'><b>"+(i+1)+".</b> "+q.q;
-        if(q.options)html+="<br><span style='font-size:11px;color:#555;'>"+q.options.join(" &nbsp;")+"</span>";
-        html+="<div style='border-bottom:1px dashed #ccc;margin-top:4px;height:18px;'></div></div>";
-      });
-    } else if(currentAtype==="rubric"&&res.criteria){
-      html+="<table style='width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;'><thead><tr><th style='background:#1a2e42;color:#fff;padding:7px;'>Criteria</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Beginning</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Developing</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Achieving</th><th style='background:#1a2e42;color:#fff;padding:7px;'>Extending</th></tr></thead><tbody>";
-      res.criteria.forEach(function(c){html+="<tr><td style='padding:7px;border:1px solid #dde;font-weight:600;'>"+c.name+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Beginning||"")+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Developing||"")+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Achieving||"")+"</td><td style='padding:7px;border:1px solid #dde;'>"+(c.levels.Extending||"")+"</td></tr>";});
-      html+="</tbody></table>";
-    } else if(currentAtype==="exit_ticket"&&res.tickets){
-      res.tickets.forEach(function(t){
-        html+="<div style='border:1px solid #dde2e8;border-radius:6px;padding:10px;margin-bottom:10px;'><b style='font-size:12px;'>"+t.title+"</b>";
-        (t.questions||[]).forEach(function(q,i){html+="<div style='margin-top:6px;font-size:13px;'>"+(i+1)+". "+q+"<div style='border-bottom:1px dashed #ccc;margin-top:3px;height:18px;'></div></div>";});
-        html+="</div>";
-      });
-    } else {
-      if(res.overview)html+="<p style='font-size:13px;margin-bottom:8px;'>"+res.overview+"</p>";
-      if(res.outcomes)html+="<b style='font-size:12px;'>Outcomes:</b><ul style='font-size:13px;margin:5px 0 10px 20px;'>"+res.outcomes.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ul>";
-      if(res.tasks)html+="<b style='font-size:12px;'>Tasks:</b><ol style='font-size:13px;margin:5px 0 10px 20px;'>"+res.tasks.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ol>";
-      if(res.criteria)html+="<b style='font-size:12px;'>Success Criteria:</b><ul style='font-size:13px;margin:5px 0 10px 20px;'>"+res.criteria.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ul>";
-      if(res.timeline)html+="<b style='font-size:12px;'>Timeline:</b> <span style='font-size:13px;'>"+res.timeline+"</span><br>";
-      if(res.format)html+="<b style='font-size:12px;'>Format:</b> <span style='font-size:13px;'>"+res.format+"</span>";
-    }
-    html+="</div>";
-    document.getElementById("as-out").innerHTML=html;
-  } catch(e){setStatus("as-status","error","&#9888; "+e.message);}
-  btn.disabled=false;
-}
 
 function renderCalendar() {
   var typeColors={"Teaching":"#e3f0fa","Exam":"#f3e5f5","Reflection":"#e8f5e9","Camps":"#fff9c4","Mid-Break":"#fce4ec","PD":"#fff3e0","Non-Teaching":"#f5f5f5"};
