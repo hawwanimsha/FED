@@ -2121,8 +2121,8 @@ function renderSugTags() {
 function addTag(el,t){el.classList.toggle("on");var ta=document.getElementById("f-activities");if(el.classList.contains("on"))ta.value=(ta.value?ta.value+"\n":"")+t;}
 
 async function doGenerate() {
-  var key=document.getElementById("api-key").value.trim();
-  if(!key){alert("Please enter your API key.");return;}
+  var key=document.getElementById("api-key")?document.getElementById("api-key").value.trim():"";
+  if(!key&&!serverHasKey){alert("Please enter your API key.");return;}
   var grade=document.getElementById("f-grade").value;
   var dur=document.getElementById("f-dur").value;
   var wk=document.getElementById("f-week").value;
