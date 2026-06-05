@@ -3009,7 +3009,7 @@ document.addEventListener("DOMContentLoaded", function() {
       this.classList.add("on");
       document.getElementById("page-"+page).classList.add("on");
       if(page==="calendar")renderCalendar();
-      if(page==="weekly")// renderWeekly removed;
+      if(false)
       if(page==="history")renderHistory();
     });
   });
@@ -3048,7 +3048,7 @@ document.addEventListener("DOMContentLoaded", function() {
   updateSyllabus();
   renderSugTags();
   renderCalendar();
-  // renderWeekly removed;
+  
   renderHistory();
   checkServerKey();
   loadSavedTemplate();
@@ -3063,8 +3063,6 @@ function populateWeeks() {
     html+="<option value='"+w.wk+"'>"+label+"</option>";
   });
   document.getElementById("f-week").innerHTML=html;
-  document.getElementById("weekly-week").innerHTML=html;
-  document.getElementById("weekly-week").addEventListener("change",renderWeekly);
 }
 
 function updateSyllabus() {
@@ -3246,7 +3244,7 @@ async function doGenerate() {
     localStorage.setItem("boli_device_usage",String(du+1));
     setProgress("gen-prog","gen-bar",100);
     setStatus("gen-status","done","&#10003; Done! <a class='dl-btn' href='"+url+"' download='"+fname+".docx'>&#8681; Download "+fname+".docx</a>");
-    renderHistory(); // renderWeekly removed;
+    renderHistory(); 
     // Refresh user usage count
     var token = localStorage.getItem('boli_token');
     if (token) {
@@ -3636,48 +3634,7 @@ function renderCalendar() {
   document.getElementById("cal-grid").innerHTML=html;
 }
 
-function renderWeekly() {
-  var wn=parseInt(document.getElementById("weekly-week").value)||null;
-  var w=wn?getWeek(wn):null;
-  document.getElementById("weekly-term").textContent=w?"Term "+w.term:"-";
-  document.getElementById("weekly-dates").textContent=w?fmtLong(w.start)+" – "+fmtLong(w.end):"";
-  document.getElementById("weekly-type").textContent=w?"["+w.type+"]":"";
-  var days=["Sunday","Monday","Tuesday","Wednesday","Thursday"];
-  var subs=["Mathematics","English","Science","Social Studies","H.PE"];
-  var h=getHist();
-  var html="";
-  days.forEach(function(day,di){
-    html+="<div class='day-card'><div class='day-hdr'>"+day+"</div>";
-    subs.forEach(function(sub){
-      var plan=null;
-      if(wn){for(var i=0;i<h.length;i++){if(String(h[i].wk)===String(wn)&&h[i].sub===sub){plan=h[i];break;}}}
-      if(plan){
-        html+="<div class='day-slot filled' onclick='dlFromHist("+plan.ts+")'>";
-        html+="<div class='slot-sub'>"+sub+"</div>";
-        html+="<div class='slot-topic'>"+(plan.topic||"")+"</div>";
-        html+="<div class='slot-dl'>&#8681; "+(plan.fname||"")+"</div>";
-        html+="</div>";
-      } else {
-        html+="<div class='day-slot' title='Plan "+sub+"' onclick='openPlanFor(\""+sub+"\","+(wn||"null")+")'>";
-        html+="<div class='slot-empty'>"+sub+"<br>+ Add</div>";
-        html+="</div>";
-      }
-    });
-    html+="</div>";
-  });
-  document.getElementById("week-grid").innerHTML=html;
-}
-
-function openPlanFor(sub,wn){
-  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("on");});
-  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("on");});
-  document.querySelector(".tab[data-page='generate']").classList.add("on");
-  document.getElementById("page-generate").classList.add("on");
-  document.querySelectorAll(".stab").forEach(function(s){s.classList.remove("on");if(s.getAttribute("data-sub")===sub)s.classList.add("on");});
-  currentSub=sub;
-  if(wn)document.getElementById("f-week").value=wn;
-  updateSyllabus(); renderSugTags();
-}
+// renderWeekly and openPlanFor removed (Weekly tab removed)
 
 function renderHistory(){
   var h=getHist();
@@ -3688,7 +3645,7 @@ function renderHistory(){
   }).join("");
 }
 function dlFromHist(ts){var h=getHist();var e=h.find(function(x){return x.ts==ts;});if(e&&e.b64)dlBlob(e.b64,e.fname||"lesson");}
-function delHist(i){var h=getHist();h.splice(i,1);localStorage.setItem("sas_h",JSON.stringify(h));renderHistory();// renderWeekly removed;}
+function delHist(i){var h=getHist();h.splice(i,1);localStorage.setItem("sas_h",JSON.stringify(h));renderHistory();}
 
 
 // =====================================================================
@@ -4073,7 +4030,7 @@ function buildTemplatePromptSection() {
     + 'Fill in the template sections with appropriate content. Keep section headings exactly as in the template.\n';
 }
 
-function doClearHistory(){if(confirm("Clear all history?")){localStorage.removeItem("sas_h");renderHistory();// renderWeekly removed;}}
+function doClearHistory(){if(confirm("Clear all history?")){localStorage.removeItem("sas_h");renderHistory();}}
 </script>
 <script>
 // =====================================================================
