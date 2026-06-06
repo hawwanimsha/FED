@@ -547,6 +547,20 @@ body::before {
   </div>
   <div class="field"><label>Topic / Lesson Title</label><input type="text" id="f-topic" placeholder="e.g. Adding fractions with unlike denominators"></div>
   <div class="field"><label>Indicators (hold Ctrl/Cmd for multiple)</label><select id="f-indicators" multiple style="height:110px;width:100%;border:1.5px solid #dde2e8;border-radius:7px;padding:5px;font-size:12px;font-family:inherit;"><option disabled>Select Outcome Code above</option></select></div>
+  <div class="field">
+    <label>Teaching Model / AI Instructions <span style="font-size:9px;color:var(--text-light);">(optional — tell AI how to structure the lesson)</span></label>
+    <select id="f-model" style="margin-bottom:6px;">
+      <option value="">Default (Bloom's Taxonomy)</option>
+      <option value="5e">5E Model (Engage, Explore, Explain, Elaborate, Evaluate)</option>
+      <option value="direct">Direct Instruction (I Do, We Do, You Do)</option>
+      <option value="inquiry">Inquiry-Based Learning</option>
+      <option value="pbl">Project-Based Learning</option>
+      <option value="flipped">Flipped Classroom</option>
+      <option value="cooperative">Cooperative Learning (Jigsaw/Think-Pair-Share)</option>
+      <option value="custom">Custom (describe below)</option>
+    </select>
+    <textarea id="f-model-custom" rows="2" placeholder="Add specific instructions for the AI, e.g. 'Use 5E model with hands-on manipulatives' or 'Include a gallery walk activity'..." style="display:none;"></textarea>
+  </div>
   <div class="field"><label>Activity Ideas</label><div class="sug-wrap" id="sug-wrap"></div><textarea id="f-activities" rows="3" placeholder="Add ideas or leave blank..."></textarea></div>
   <button class="btn btn-navy" id="gen-btn" onclick="doGenerate()">&#9889; Generate Lesson Plan</button>
   <div class="prog" id="gen-prog"><div class="prog-bar" id="gen-bar" style="width:0%"></div></div>
@@ -710,22 +724,62 @@ body::before {
 <!-- CHECKLISTS -->
 <div class="page" id="page-checklists">
 <div class="card">
-  <div class="card-title">Checklist Generator</div>
-  <div class="apirow"><label>API Key</label><input type="password" id="cl-key" placeholder="sk-ant-api03-..."></div>
-  <div class="g3">
-    <div class="field"><label>Grade</label><select id="cl-grade"><option>Grade 1</option><option>Grade 2</option><option>Grade 3</option><option>Grade 4</option><option selected>Grade 5</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option></select></div>
-    <div class="field"><label>Subject</label><select id="cl-sub"><option>Mathematics</option><option>English</option><option>Science</option><option>Social Studies</option><option>H.PE</option><option>Creative Arts</option></select></div>
-    <div class="field"><label>Type</label><select id="cl-type"><option value="observation">Observation</option><option value="skills">Skills</option><option value="behaviour">Behaviour</option><option value="formative">Formative Assessment</option></select></div>
+  <div class="card-title">Outcome Assessment Record Sheet</div>
+
+  <div class="step active" data-step="1" id="cl-step-grade">
+    <div class="step-label">Grade / Class</div>
+    <div class="step-content field">
+      <select id="cl-grade" onchange="clOnGradeChange()">
+        <option value="">-- Select Grade --</option>
+        <option>Grade 1</option><option>Grade 2</option><option>Grade 3</option><option>Grade 4</option>
+        <option>Grade 5</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option>
+      </select>
+    </div>
   </div>
-  <div class="g2">
-    <div class="field"><label>Topic (optional)</label><input type="text" id="cl-topic" placeholder="e.g. Fractions"></div>
-    <div class="field"><label>No. of students</label><input type="number" id="cl-students" value="25" min="5" max="40"></div>
+
+  <div class="step hidden" data-step="2" id="cl-step-subject">
+    <div class="step-label">Subject</div>
+    <div class="step-content field">
+      <select id="cl-sub" onchange="clOnSubjectChange()">
+        <option value="">-- Select Subject --</option>
+      </select>
+    </div>
   </div>
-  <button class="btn btn-blue" id="cl-btn" onclick="doChecklist()">&#9889; Generate Checklist</button>
-  <div class="prog" id="cl-prog"><div class="prog-bar" id="cl-bar" style="width:0%"></div></div>
-  <div class="status" id="cl-status"></div>
-  <div id="cl-out"></div>
-</div></div>
+
+  <div class="step hidden" data-step="3" id="cl-step-outcome">
+    <div class="step-label">Outcome</div>
+    <div class="step-content field">
+      <select id="cl-outcome" onchange="clOnOutcomeChange()">
+        <option value="">-- Select Outcome --</option>
+      </select>
+    </div>
+    <div class="sch-info-box" id="cl-info" style="display:none;"></div>
+  </div>
+
+  <div class="step hidden" data-step="4" id="cl-step-details">
+    <div class="step-label">Auto-filled Details</div>
+    <div class="step-content">
+      <div class="g2">
+        <div class="field"><label>Strand</label><input type="text" id="cl-strand" readonly style="background:#f0f0f0;"></div>
+        <div class="field"><label>Sub-Strand</label><input type="text" id="cl-substrand" readonly style="background:#f0f0f0;"></div>
+      </div>
+      <div class="field"><label>Indicators (auto-filled)</label>
+        <div id="cl-indicators" class="ind-list"></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Term</label>
+          <select id="cl-term"><option value="FIRST TERM 2026">Term 1 (2026)</option><option value="SECOND TERM 2026">Term 2 (2026)</option></select>
+        </div>
+        <div class="field"><label>No. of Students</label><input type="number" id="cl-students" value="23" min="1" max="40"></div>
+      </div>
+      <div class="field"><label>School Name</label><input type="text" id="cl-school" placeholder="e.g. Seenu Atoll School"></div>
+      <button class="btn btn-blue" id="cl-btn" onclick="clGenerateDocx()">&#11015; Generate Checklist (.docx)</button>
+      <div class="status" id="cl-status"></div>
+    </div>
+  </div>
+
+</div>
+</div>
 
 <!-- REPORT CARDS -->
 <div class="page" id="page-reportcards">
@@ -2896,6 +2950,199 @@ var SYLLABUS = [
 ,{"grade":"Grade 8","subject":"Social Studies","strand":"Strand 7: Process Strand: Investigation, Communication and Participation","substrand":"Processing and Translating","out_code":"IG5.1","out_stmt":"Apply skills relevant for processing and translating information and develop critical thinking","ind_code":"IG5.1b","indicator":"Develops critical thinking skills through processing and analysis of information"}
 ,{"grade":"Grade 8","subject":"Social Studies","strand":"Strand 7: Process Strand: Investigation, Communication and Participation","substrand":"Applying and Communicating","out_code":"IG6.1","out_stmt":"Apply, communicate findings by reflecting on the process and share information with an audience","ind_code":"IG6.1a","indicator":"Applies and communicates findings by reflecting on the process"}
 ,{"grade":"Grade 8","subject":"Social Studies","strand":"Strand 7: Process Strand: Investigation, Communication and Participation","substrand":"Applying and Communicating","out_code":"IG6.1","out_stmt":"Apply, communicate findings by reflecting on the process and share information with an audience","ind_code":"IG6.1b","indicator":"Shares information with an audience using appropriate methods"}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1a","indicator":"Recognize the natural numbers as counting numbers, whole numbers and integers."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1b","indicator":"Represent the integers on the number line, arrange the integers in increasing and decreasing order."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1c","indicator":"Find the sum, difference, product of integers using number line and rapidly answer the oral and written questions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1d","indicator":"Add and subtract the given natural numbers with suitable strategies."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1e","indicator":"Recognize the commutative, associative and distributive properties with respect to addition and multiplication of integers."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1f","indicator":"Find the absolute value of given integers."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N2a","indicator":"Uses appropriate vocabulary to support multiplication and division problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N2b","indicator":"Determine and explain why a number is divisible by 2, 3, 4, 5, 6, 8, 9 or 10 using suitable strategies without actual division and explain why a number is not divisible by 0."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N2c","indicator":"Understand the terminology used in word problems to use the addition, subtraction, multiplication and division to find the solutions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N2d","indicator":"Rapidly use the associative property and distributive property to find the solutions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N2e","indicator":"Use order of operations, including use of parenthesis to solve multi-step problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N2f","indicator":"Solve word problems including with respect to all 4 operations and suitable operations to solve problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N2.2","out_stmt":"Understand and use the knowledge of multiples of whole numbers.","ind_code":"N2.2a","indicator":"Find common factors and common multiples of given numbers using Venn-diagrams."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N2.3","out_stmt":"Understand the characteristics of prime numbers.","ind_code":"N2.3a","indicator":"Recognize the prime numbers and composite numbers and identify the difference between prime numbers and co-prime numbers."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N2.3","out_stmt":"Understand the characteristics of prime numbers.","ind_code":"N2.3b","indicator":"Represent the given numbers as product of prime factors using various strategies (prime factorisation)."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N2.3","out_stmt":"Understand the characteristics of prime numbers.","ind_code":"N2.3c","indicator":"Find the LCM of numbers using suitable strategies."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N2.3","out_stmt":"Understand the characteristics of prime numbers.","ind_code":"N2.3d","indicator":"Determine HCF of given numbers."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Four Operations (N2)","out_code":"N2.3","out_stmt":"Understand the characteristics of prime numbers.","ind_code":"N2.3e","indicator":"Recognize square of a number as the product of two same factors."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1a","indicator":"Understand and use the knowledge of fractions as part of a whole."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1b","indicator":"Understand and use the knowledge of proper, improper, mixed numbers and equivalent fractions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1c","indicator":"Understand the concept of addition, subtraction, multiplication and division of fractions to solve problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1d","indicator":"Perform computations involving combined operations of addition, subtraction, multiplication and division of fractions to solve problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1e","indicator":"Determine through analysis, the relation between fractions, decimals and percentages."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1f","indicator":"Convert between fractions, decimals and percentages."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1g","indicator":"Apply the knowledge of fractions, decimals and percentages in real life situations."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real-life situations.","ind_code":"N4.1a","indicator":"Make estimates of numbers, quantities, and lengths, and give approximations."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real-life situations.","ind_code":"N4.1b","indicator":"Round off the decimals to nearest tenths, hundredths and thousandths."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real-life situations.","ind_code":"N4.1c","indicator":"Make approximations to estimate to the nearest whole numbers."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand the concept of ratio and proportion, solve problems and relate it to fractions, decimals and percentages.","ind_code":"N5.1a","indicator":"Use ratio notation to compare two and three quantities."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand the concept of ratio and proportion, solve problems and relate it to fractions, decimals and percentages.","ind_code":"N5.1b","indicator":"Find equivalent ratios and simplify ratios, use ratios to solve problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand the concept of ratio and proportion, solve problems and relate it to fractions, decimals and percentages.","ind_code":"N5.1c","indicator":"Relate ratios to fractions of a quantity."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand the concept of ratio and proportion, solve problems and relate it to fractions, decimals and percentages.","ind_code":"N5.1d","indicator":"Solve problems involving changing ratios and relate ratios to proportions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand the concept of ratio and proportion, solve problems and relate it to fractions, decimals and percentages.","ind_code":"N5.1e","indicator":"Determine through investigations, the relationships among fractions, decimals, per cents and ratios."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Money (N6)","out_code":"N6.1","out_stmt":"Solve problems related to personal and household finance and apply the knowledge of currency exchange in necessary contexts.","ind_code":"N6.1a","indicator":"Solve problems related to household finance including daily expenses."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Money (N6)","out_code":"N6.1","out_stmt":"Solve problems related to personal and household finance and apply the knowledge of currency exchange in necessary contexts.","ind_code":"N6.1b","indicator":"Convert from one currency to another using the given exchange rate and calculate exchange rate when currencies are given."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Powers (N7)","out_code":"N7.1","out_stmt":"Demonstrate an understanding of exponential form. Recognize and change the given numbers to standard form, changing to decimal numerals.","ind_code":"N7.1a","indicator":"Uses vocabulary related to exponential form."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Numbers (N)","substrand":"Powers (N7)","out_code":"N7.1","out_stmt":"Demonstrate an understanding of exponential form. Recognize and change the given numbers to standard form, changing to decimal numerals.","ind_code":"N7.1b","indicator":"Expressing bigger/smaller numbers in standard form or in scientific notation."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Conversion of Units (M1)","out_code":"M1.1","out_stmt":"Convert units of length, area, volume, mass, temperature and time and apply in real context.","ind_code":"M1.1","indicator":"Identify the relationship between metric units and convert between different units of measurement (length, mass, volume, area, temperature and time)."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1a","indicator":"Investigate the derivation of formulae to find the area of circles and semi circles."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1b","indicator":"Investigate the derivation of formulae to find the area and perimeter of rectangles, parallelograms, triangles, trapezium and squares."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1c","indicator":"Investigate the derivation of formulae to find the volume of cube, cuboids and prisms."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1d","indicator":"Find the perimeters and areas of combined shapes from simple to complex."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1e","indicator":"Calculate the volume of compound shapes."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1f","indicator":"Calculate the area and perimeter of shaded regions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1g","indicator":"Analyse the changes in perimeter and area in relation with increasing or decreasing the dimensions of figures."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1a","indicator":"Understand the concept of time in seconds, minutes, hours, days, weeks, months and years."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1b","indicator":"Determine the appropriate measurement of time for certain events."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1c","indicator":"Convert time in twelve-hour system to twenty-four hour system and vice-versa."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1d","indicator":"Determine the interval between two given times."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1e","indicator":"Use the four operations to solve problems involving time."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Temperature (M4)","out_code":"M4.1","out_stmt":"Understand and use the concept of temperature to solve problems.","ind_code":"M4.1a","indicator":"Measure temperature using a thermometer, read and record the information correctly."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Measurement (M)","substrand":"Temperature (M4)","out_code":"M4.1","out_stmt":"Understand and use the concept of temperature to solve problems.","ind_code":"M4.1b","indicator":"Convert from one temperature scale to other and use the four operations to solve problems related to temperature."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1a","indicator":"Identify the types of angles."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1b","indicator":"Determine the angle around a point as 360°, angle at the center of semicircle as 180°, angle at centre of a quadrant as 90°."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1c","indicator":"Understand the concept of parallel and perpendicular lines."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1d","indicator":"Understand and use properties of angles associated with intersecting lines to solve problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1e","indicator":"Construct the angles with the given magnitude using the ruler, compass and protractor."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1f","indicator":"Construct angle bisectors and perpendicular bisectors using straight edge and pair of compass only."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1g","indicator":"Find the unknown angles of different types of triangles."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1h","indicator":"Identify quadrilaterals and its properties."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Lines and Angles (SS1)","out_code":"SS1.1","out_stmt":"Identify types of angles, line segments, rays, parallel lines, intersecting lines, pair of angles and types of triangles and understand its properties. Measure lines and angles accurately. Construct angle bisectors and perpendicular bisectors.","ind_code":"SS1.1i","indicator":"Compare the given two triangles and identify whether they are congruent or not using congruency properties SSS, SAS, ASA, AAS, RHS congruency rules."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Symmetry (SS2)","out_code":"SS3.1","out_stmt":"Understand the concept of symmetry.","ind_code":"SS3.1a","indicator":"Determine and draw the line(s) of symmetry of shapes (triangles, quadrilaterals and circles)."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Symmetry (SS2)","out_code":"SS3.1","out_stmt":"Understand the concept of symmetry.","ind_code":"SS3.1b","indicator":"Identify and describe line and order of rotational symmetry in triangles, quadrilaterals and circles in two dimensions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Similar Figures (SS4)","out_code":"SS4.1","out_stmt":"Use proportions to express relationships among corresponding parts of similar figures.","ind_code":"SS4.1a","indicator":"Understand the concept of similarity and give examples from nature."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Similar Figures (SS4)","out_code":"SS4.1","out_stmt":"Use proportions to express relationships among corresponding parts of similar figures.","ind_code":"SS4.1b","indicator":"Describe the scale factor of drawings, shapes and maps."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1a","indicator":"Find mean, median, mode and range of a given set of data."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1b","indicator":"Recognise appropriate statistical data for collection and develop the skills of collecting and organising data."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1c","indicator":"Draw line graphs for given data and/or answer questions related to given line graph."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1d","indicator":"Read the pie chart and answer the questions related to it, create the suitable data to draw the pie charts for given information."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1e","indicator":"Organize the data and depict the data using suitable pictorial graphs."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1a","indicator":"Interpret data by looking for patterns and relationships, draw and justify conclusions, and answer related questions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1b","indicator":"Collect, organize, display and interpret data for a specific purpose or need."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1c","indicator":"Find all possible outcomes of simple experiments or problem situations, using methods such as lists, arrays and tree diagrams."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1d","indicator":"Determine the probability of an event using ratios, including fractional notation. Understand the probability number line and apply it to solve the problems."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1e","indicator":"Apply the probability models to make predictions about real-life events."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1a","indicator":"Express the given statement symbolically using suitable signs and frame the algebraic expressions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1b","indicator":"Evaluate algebraic expressions by substitution."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1c","indicator":"Simplify algebraic expressions with parenthesis."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1d","indicator":"Expand single and double brackets."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1e","indicator":"Factorize algebraic expressions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1f","indicator":"Add or subtract two algebraic fractions with the same denominator."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1g","indicator":"Multiply and divide two algebraic fractions."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1h","indicator":"Solve problems using formulae."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1i","indicator":"Solve linear equations involving fractional coefficients."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1j","indicator":"Use rules and variables to describe patterns, functions and other relationships."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1k","indicator":"Use representations to model situations."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1l","indicator":"Understand the equation of straight line and write the given equation in the form: y = mx + c."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1m","indicator":"Demonstrate familiarity with Cartesian coordinates and draw graph for a given linear equation."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1n","indicator":"Continue a given number sequence."}
+,{"grade":"Grade 7","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1o","indicator":"Recognise patterns in sequences and relationships between different sequences."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Use of Calculator","out_code":"—","out_stmt":"Understand how to use a calculator efficiently.","ind_code":"Ca","indicator":"Understand basics of a calculator (on/off, operations, fractions, brackets, squares)."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Use of Calculator","out_code":"—","out_stmt":"Understand how to use a calculator efficiently.","ind_code":"Cb","indicator":"Apply appropriate checks of accuracy (square, cube, square roots, cube roots, standard form)."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1a","indicator":"Recognize the natural numbers as counting numbers, whole numbers and integers."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1b","indicator":"Represent the integers on the number line, arrange the integers in increasing and decreasing order."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1c","indicator":"Identify square numbers, cube numbers. Calculate squares, cubes, square roots and cube roots."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1d","indicator":"Recognize the prime numbers, find the factors and multiples of given numbers and identify composite numbers. List out the common multiples of a given set of numbers and find LCM and HCF."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1e","indicator":"Identify the difference between rational and irrational numbers."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Number Types (N1)","out_code":"N1.1","out_stmt":"Understand the concept of numbers, identify and apply the knowledge of different types of numbers.","ind_code":"N1.1f","indicator":"Understand the difference between terminating decimals and recurring decimals."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N1.1","out_stmt":"Understand the indices.","ind_code":"N2a","indicator":"Explore indices using calculators."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N1.1","out_stmt":"Understand the indices.","ind_code":"N2b","indicator":"Explore the laws of indices using repeated multiplication and calculators. Perform computations involving multiplication of numbers in index notation. Verify am × an = am+n."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N1.1","out_stmt":"Understand the indices.","ind_code":"N2c","indicator":"Explore the laws of indices using division and calculators. Perform computation involving division of numbers in index notation. Verify am ÷ an = am−n."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N1.1","out_stmt":"Understand the indices.","ind_code":"N2d","indicator":"Perform computations involving algebraic terms and numbers in index notation."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N1.1","out_stmt":"Understand the indices.","ind_code":"N2e","indicator":"Perform computations involving negative indices."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N1.1","out_stmt":"Understand the indices.","ind_code":"N2f","indicator":"Perform computations involving fractional indices."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N1.1","out_stmt":"Understand the indices.","ind_code":"N2g","indicator":"Perform computation involving laws of indices."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Indices (N2)","out_code":"N2.2","out_stmt":"Understand and apply the rule of standard form.","ind_code":"N2.2a","indicator":"Use the standard form A × 10n where n is a positive or negative integer, and 1 ≤ A < 10."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1a","indicator":"Understand and use the knowledge of fractions as part of a whole."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1b","indicator":"Understand and use the knowledge of proper, improper, mixed numbers and equivalent fractions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1c","indicator":"Understand the concept of addition, subtraction, multiplication and division of fractions to solve problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1d","indicator":"Perform computations involving combined operations of addition, subtraction, multiplication and division of fractions to solve problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1e","indicator":"Understand the relationship between decimals, percentages and fractions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1f","indicator":"Convert between fractions, decimals and percentages."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Fractions, Decimals and Percentages (N3)","out_code":"N3.1","out_stmt":"Understand the knowledge of fractions, decimals, percentages and apply it in real-life situations.","ind_code":"N3.1g","indicator":"Apply the knowledge of fractions, decimals and percentages in real life situations."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real life situations.","ind_code":"N4.1a","indicator":"Make estimates of numbers, quantities, lengths and give approximations."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real life situations.","ind_code":"N4.1b","indicator":"Round off whole numbers to the nearest 10, 100, 1000 or 10,000."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real life situations.","ind_code":"N4.1c","indicator":"Round off decimals to a specified number of decimal places."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real life situations.","ind_code":"N4.1d","indicator":"Give approximations to the specified number of significant figures."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Estimation (N4)","out_code":"N4.1","out_stmt":"Estimate numbers, quantities and apply the knowledge of estimation in real life situations.","ind_code":"N4.1e","indicator":"Round off answers to reasonable accuracy in the context of a given problem."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand and solve problems involving ratios and directly proportional relationships in various contexts.","ind_code":"N5.1a","indicator":"Solve problems involving changing ratios and relate ratios to proportions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand and solve problems involving ratios and directly proportional relationships in various contexts.","ind_code":"N5.1b","indicator":"Recognise when fractions or percentages are needed to compare different quantities."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand and solve problems involving ratios and directly proportional relationships in various contexts.","ind_code":"N5.1c","indicator":"Recognises direct and indirect proportion, and solves problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand and solve problems involving ratios and directly proportional relationships in various contexts.","ind_code":"N5.1d","indicator":"Determine the rate involved in given situations and identify the two quantities involved."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand and solve problems involving ratios and directly proportional relationships in various contexts.","ind_code":"N5.1e","indicator":"Convert between units for rates."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Ratio and Proportion (N5)","out_code":"N5.1","out_stmt":"Understand and solve problems involving ratios and directly proportional relationships in various contexts.","ind_code":"N5.1f","indicator":"Recognise direct and inverse proportion from graphs."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Money (N6)","out_code":"N6.1","out_stmt":"Solve problems related to personal and household finance and apply the knowledge in necessary contexts.","ind_code":"N6.1a","indicator":"Solve problems related to household finance, including daily expenses."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Money (N6)","out_code":"N6.1","out_stmt":"Solve problems related to personal and household finance and apply the knowledge in necessary contexts.","ind_code":"N6.1b","indicator":"Convert from one currency to another using the given exchange rate and calculate exchange rate when currencies are given."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Money (N6)","out_code":"N6.1","out_stmt":"Solve problems related to personal and household finance and apply the knowledge in necessary contexts.","ind_code":"N6.1c","indicator":"Analyse the difference between simple interest and compound interest and solve problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Numbers (N)","substrand":"Money (N6)","out_code":"N6.1","out_stmt":"Solve problems related to personal and household finance and apply the knowledge in necessary contexts.","ind_code":"N6.1d","indicator":"Understand the knowledge of depreciation, tax, commission and solve problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Conversion of Units (M1)","out_code":"M1.1","out_stmt":"Identify the appropriate unit for a specific situation and apply the knowledge of conversion in real contexts.","ind_code":"M1.1","indicator":"Identify the relationship between metric units and convert between different units of measurement (length, mass, volume, area, temperature, time and speed)."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Analyse and understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1a","indicator":"Investigate and derive the formulae to find the solutions of the problems involved with perimeter and areas of triangle, rectangle, square, parallelogram, trapezium, circle and semicircle."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Analyse and understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1b","indicator":"Compute the perimeters and areas of compound figures formed with rectangles, squares, parallelograms, trapeziums and triangles."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Analyse and understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1c","indicator":"Identify tangent of a circle and investigate the relation between a tangent to the circle and radius drawn at the point of contact."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Analyse and understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1d","indicator":"Solve problems involving the arc length, sector, tangent, chord circumference and radius."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Analyse and understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1e","indicator":"Investigate the derivation of formulae to find the volume of cubes, cuboids and prisms."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Analyse and understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1f","indicator":"Calculate volume of cubes, cuboids and prisms."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Perimeter, Area and Volume (M2)","out_code":"M2.1","out_stmt":"Analyse and understand the concept of area, perimeter and volume to solve problems.","ind_code":"M2.1g","indicator":"Analyse the changes in perimeter, area and volume in relation with increasing or decreasing the dimensions of figures."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1a","indicator":"Select appropriate tools, measure and convert times between 12 hour and 24 hour clock."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1b","indicator":"Convert decimal or fraction time to actual time."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Time (M3)","out_code":"M3.1","out_stmt":"Understand and use the concept of time to solve problems.","ind_code":"M3.1c","indicator":"Solve problems related to time in day to day life."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Temperature (M4)","out_code":"M4.1","out_stmt":"Measure and read temperature in degree Celsius and in Fahrenheit.","ind_code":"M4.1a","indicator":"Measure temperature using a thermometer, read and record the information correctly."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Temperature (M4)","out_code":"M4.1","out_stmt":"Measure and read temperature in degree Celsius and in Fahrenheit.","ind_code":"M4.1b","indicator":"Convert from one temperature scale to other."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Measurement (M)","substrand":"Temperature (M4)","out_code":"M4.1","out_stmt":"Measure and read temperature in degree Celsius and in Fahrenheit.","ind_code":"M4.1c","indicator":"Solve problems related to temperature."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Trigonometry","out_code":"SS1.1","out_stmt":"Understand the concept of trigonometry to solve problems.","ind_code":"SS1.1a","indicator":"Understand and use tangent of an acute angle in a right-angled triangle."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Trigonometry","out_code":"SS1.1","out_stmt":"Understand the concept of trigonometry to solve problems.","ind_code":"SS1.1b","indicator":"Understand and use sine of an acute angle in a right-angled triangle."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Trigonometry","out_code":"SS1.1","out_stmt":"Understand the concept of trigonometry to solve problems.","ind_code":"SS1.1c","indicator":"Understand and use cosine of an acute angle in a right-angled triangle."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Trigonometry","out_code":"SS1.1","out_stmt":"Understand the concept of trigonometry to solve problems.","ind_code":"SS1.1d","indicator":"Use the values of tangent, sine and cosine to solve problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Trigonometry","out_code":"SS1.1","out_stmt":"Understand the concept of trigonometry to solve problems.","ind_code":"SS1.1e","indicator":"Solve problems involving trigonometric ratios."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Trigonometry","out_code":"SS1.1","out_stmt":"Understand the concept of trigonometry to solve problems.","ind_code":"SS1.1f","indicator":"Use Pythagoras' theorem to solve problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Trigonometry","out_code":"SS1.1","out_stmt":"Understand the concept of trigonometry to solve problems.","ind_code":"SS1.1g","indicator":"Solve problems involving trigonometric ratios (applied)."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Angles and Lines (SS2)","out_code":"SS2.1","out_stmt":"Understand the concept of Angles and Lines.","ind_code":"SS2.1a","indicator":"Construct the triangles with respect to given measures using compass and ruler."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Angles and Lines (SS2)","out_code":"SS2.1","out_stmt":"Understand the concept of Angles and Lines.","ind_code":"SS2.1b","indicator":"Construct simple geometric figures from the given data using ruler and protractor."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Angles and Lines (SS2)","out_code":"SS2.1","out_stmt":"Understand the concept of Angles and Lines.","ind_code":"SS2.1c","indicator":"Construct angle bisectors and perpendicular bisectors of side of given triangle to locate center."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Angles and Lines (SS2)","out_code":"SS2.1","out_stmt":"Understand the concept of Angles and Lines.","ind_code":"SS2.1d","indicator":"Calculate unknown angles on a straight line, angles at a point, quadrilaterals and different types of triangles."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Angles and Lines (SS2)","out_code":"SS2.1","out_stmt":"Understand the concept of Angles and Lines.","ind_code":"SS2.1e","indicator":"Investigate the derivation of the formula to find sum of interior angles of a regular polygon and each interior angle of a regular polygon."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Angles and Lines (SS2)","out_code":"SS2.1","out_stmt":"Understand the concept of Angles and Lines.","ind_code":"SS2.1g","indicator":"Solve problems involving angles and sides of regular and irregular polygons."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Symmetry (SS3)","out_code":"SS3.1","out_stmt":"Understand the concept of symmetry.","ind_code":"SS3.1a","indicator":"Determine and draw the line(s) of symmetry of shapes."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Symmetry (SS3)","out_code":"SS3.1","out_stmt":"Understand the concept of symmetry.","ind_code":"SS3.1b","indicator":"Identify and describe line and order of rotational symmetry in two dimensions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Symmetry (SS3)","out_code":"SS3.1","out_stmt":"Understand the concept of symmetry.","ind_code":"SS3.1c","indicator":"Recognise symmetry properties of prisms."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Symmetry (SS3)","out_code":"SS3.1","out_stmt":"Understand the concept of symmetry.","ind_code":"SS3.1d","indicator":"Use the properties of circles to identify its symmetry."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Similar Figures (SS4)","out_code":"SS4.1","out_stmt":"Understand the concepts of similarity to solve problems.","ind_code":"SS4.1a","indicator":"Identify similar figures and differentiate between similarity and congruence."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Similar Figures (SS4)","out_code":"SS4.1","out_stmt":"Understand the concepts of similarity to solve problems.","ind_code":"SS4.1b","indicator":"Solve problems involving similarity."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Shape and Space (SS)","substrand":"Similar Figures (SS4)","out_code":"SS4.1","out_stmt":"Understand the concepts of similarity to solve problems.","ind_code":"SS4.1c","indicator":"Describe the scale factor of drawings, shapes and maps."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1a","indicator":"Calculate the mean, median, mode and range for individual and discrete data and distinguish between the purpose for which they are used."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1b","indicator":"Recognise appropriate statistical data for collection and develop the skills of collecting and organising data."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1c","indicator":"Read, create and use line graphs, histograms, pictographs, pie charts, and other representations when appropriate."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1d","indicator":"Answer questions related to given line graphs, pictographs, histograms, pie charts, and other representations."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Handling Data (CH1)","out_code":"CH1.1","out_stmt":"Understand the concept of handling data and present data to solve problems.","ind_code":"CH1.1e","indicator":"Organize the data and depict the data using suitable pictorial graphs."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1a","indicator":"Interpret data by looking for patterns and relationships, draw and justify conclusions, and answer related questions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1b","indicator":"Collect, organize, display and interpret data for a specific purpose or need."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1c","indicator":"Evaluate interpretations and conclusions as additional data are collected, modify conclusions and predictions, and justify new findings."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1d","indicator":"Differentiate the data representation such as multiple sets of data on same graph."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1e","indicator":"Write the possible outcomes in an experiment, recognize the probability of impossible event and sure event."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1f","indicator":"Express the probability of an event using ratios, including fraction notation."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Chance and Handling Data (CH)","substrand":"Data Analysis and Probability (CH2)","out_code":"CH2.1","out_stmt":"Understand and use the concept of data analysis and probability to make conclusions and predictions.","ind_code":"CH2.1g","indicator":"Use probability models to make predictions about real-life events."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1a","indicator":"Express the given statement symbolically using suitable signs and frame the algebraic expressions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1b","indicator":"Identify the difference between linear and non-linear expressions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1c","indicator":"Evaluate algebraic expressions by substitution."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1d","indicator":"Simplify algebraic expressions with parenthesis."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1e","indicator":"Transform formulae and evaluate algebraic expressions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1f","indicator":"Factorize algebraic expressions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1g","indicator":"Add or subtract two or more algebraic fractions with same and different denominator."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1h","indicator":"Multiply and divide two or more algebraic fractions."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1i","indicator":"Solve problems using formulae."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1j","indicator":"Solve linear equations involving fractional coefficients."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1k","indicator":"Use representations to model situations and to solve problems."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1l","indicator":"Use rules and variables to describe patterns, functions and other relationships."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1m","indicator":"Understand the equation of straight line and write the given equation in the form: y = mx + c."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1n","indicator":"Demonstrate familiarity with Cartesian coordinates and draw graph for a given linear equation."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1o","indicator":"Find gradient, mid-point and length of a straight line."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1p","indicator":"Solve simultaneous linear equations."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1q","indicator":"Express direct and inverse variation in algebraic terms and use this form of expression to find unknown quantities."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1r","indicator":"Continue a given number sequence."}
+,{"grade":"Grade 8","subject":"Mathematics","strand":"Patterns and Algebra (PA)","substrand":"Patterns and Algebra (PA1)","out_code":"PA1.1","out_stmt":"Understand and use the concept of algebra to solve problems.","ind_code":"PA1.1s","indicator":"Find the nth term of simple sequences."}
 ];
 var CAL = [
   {"term":1,"wk":1,"start":"2026-01-25","end":"2026-01-30","type":"Teaching","notes":"Term starts"},
@@ -3036,6 +3283,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // SYLLABUS CASCADE
   document.getElementById("f-grade").addEventListener("change",updateSyllabus);
+  document.getElementById("f-model").addEventListener("change",function(){
+    document.getElementById("f-model-custom").style.display = this.value==="custom"?"block":"none";
+  });
   document.getElementById("f-strand").addEventListener("change",updateSubstrand);
   document.getElementById("f-substrand").addEventListener("change",updateOutcome);
   document.getElementById("f-outcode").addEventListener("change",updateIndicators);
@@ -3204,6 +3454,7 @@ async function doGenerate() {
       +"- Bloom\'s Taxonomy progression\n"
       +"- Maldivian contexts (atolls, fishing, MVR, Islam)\n"
       +"- 3 differentiation levels\n"
+      +(modelInstruction ? "- TEACHING MODEL: "+modelInstruction+"\n" : "")
       +'\nRespond ONLY with valid JSON:\n{"lessonNo":"'+fname+'"'
       +',"learningIntentions":["We are learning to ..."]'
       +',"successCriteria":["I can ...","I can ..."]'
@@ -3259,6 +3510,180 @@ async function doGenerate() {
   btn.disabled=false;
 }
 
+
+
+// =====================================================================
+// CHECKLIST — CASCADING BUILDER
+// =====================================================================
+function clOnGradeChange() {
+  var grade = document.getElementById('cl-grade').value;
+  var steps = ['cl-step-subject','cl-step-outcome','cl-step-details'];
+  steps.forEach(function(s) { var el=document.getElementById(s); if(el){el.classList.add('hidden');el.classList.remove('active','done');} });
+  if (!grade) return;
+  var el = document.getElementById('cl-step-grade'); if(el) { el.classList.remove('active'); el.classList.add('done'); }
+  // Get subjects for this grade
+  var subs = [];
+  SYLLABUS.forEach(function(d) { if (d.grade === grade && subs.indexOf(d.subject) < 0) subs.push(d.subject); });
+  var sel = document.getElementById('cl-sub');
+  sel.innerHTML = '<option value="">-- Select Subject --</option>' + subs.map(function(s) { return '<option>'+s+'</option>'; }).join('');
+  var step = document.getElementById('cl-step-subject'); if(step) { step.classList.remove('hidden'); step.classList.add('active'); }
+}
+
+function clOnSubjectChange() {
+  var sub = document.getElementById('cl-sub').value;
+  ['cl-step-outcome','cl-step-details'].forEach(function(s) { var el=document.getElementById(s); if(el){el.classList.add('hidden');el.classList.remove('active','done');} });
+  if (!sub) return;
+  var el = document.getElementById('cl-step-subject'); if(el) { el.classList.remove('active'); el.classList.add('done'); }
+  var grade = document.getElementById('cl-grade').value;
+  var data = getSyl(grade, sub);
+  var map = {};
+  data.forEach(function(d) { if (!map[d.out_code]) map[d.out_code] = d; });
+  var outcomes = Object.values(map);
+  var sel = document.getElementById('cl-outcome');
+  sel.innerHTML = '<option value="">-- Select Outcome --</option>' + outcomes.map(function(o) {
+    var short = o.out_stmt.length > 80 ? o.out_stmt.slice(0,80) + '...' : o.out_stmt;
+    return '<option value="'+o.out_code+'">'+o.out_code+': '+short+'</option>';
+  }).join('');
+  var step = document.getElementById('cl-step-outcome'); if(step) { step.classList.remove('hidden'); step.classList.add('active'); }
+}
+
+function clOnOutcomeChange() {
+  var code = document.getElementById('cl-outcome').value;
+  var detailStep = document.getElementById('cl-step-details');
+  if (!code) { if(detailStep) detailStep.classList.add('hidden'); return; }
+  var el = document.getElementById('cl-step-outcome'); if(el) { el.classList.remove('active'); el.classList.add('done'); }
+  
+  var grade = document.getElementById('cl-grade').value;
+  var sub = document.getElementById('cl-sub').value;
+  var data = getSyl(grade, sub).filter(function(d) { return d.out_code === code; });
+  if (!data.length) return;
+
+  // Auto-fill
+  document.getElementById('cl-strand').value = data[0].strand;
+  document.getElementById('cl-substrand').value = data[0].substrand;
+  
+  // Show info
+  var info = document.getElementById('cl-info');
+  if (info) { info.style.display = 'block'; info.innerHTML = '<b>'+data[0].out_code+':</b> '+data[0].out_stmt; }
+
+  // Show indicators
+  document.getElementById('cl-indicators').innerHTML = data.map(function(d) {
+    return '<div class="ind-item"><span class="ind-code">'+d.ind_code+'</span><span>'+d.indicator+'</span></div>';
+  }).join('');
+
+  if (detailStep) { detailStep.classList.remove('hidden'); detailStep.classList.add('active'); }
+}
+
+async function clGenerateDocx() {
+  var grade = document.getElementById('cl-grade').value;
+  var sub = document.getElementById('cl-sub').value;
+  var code = document.getElementById('cl-outcome').value;
+  var school = document.getElementById('cl-school').value || '';
+  var term = document.getElementById('cl-term').value;
+  var numStudents = parseInt(document.getElementById('cl-students').value) || 23;
+  if (!code) { alert('Please select an outcome.'); return; }
+
+  var data = getSyl(grade, sub).filter(function(d) { return d.out_code === code; });
+  var strand = data[0].strand;
+  var substrand = data[0].substrand;
+  var outStmt = data[0].out_stmt;
+  var indicators = data.map(function(d) { return { code: d.ind_code, text: d.indicator }; });
+
+  var btn = document.getElementById('cl-btn'); btn.disabled = true;
+  var status = document.getElementById('cl-status');
+  status.className = 'status loading'; status.style.display = 'block';
+  status.innerHTML = '<span class="spin"></span> Generating checklist...';
+
+  try {
+    var _d=docx, Document=_d.Document, Packer=_d.Packer, Paragraph=_d.Paragraph, TextRun=_d.TextRun,
+        Table=_d.Table, TableRow=_d.TableRow, TableCell=_d.TableCell,
+        AlignmentType=_d.AlignmentType, BorderStyle=_d.BorderStyle,
+        WidthType=_d.WidthType, ShadingType=_d.ShadingType;
+
+    var TW = 10466;
+    var GRAY = {fill:"404040",type:ShadingType.CLEAR,color:"FFFFFF"};
+    var LGRAY = {fill:"D9D9D9",type:ShadingType.CLEAR,color:"000000"};
+    var BDR = {style:BorderStyle.SINGLE,size:4,color:"000000"};
+    var BORDERS = {top:BDR,bottom:BDR,left:BDR,right:BDR,insideHorizontal:BDR,insideVertical:BDR};
+    var CM = {top:40,bottom:40,left:80,right:80};
+
+    function P(t,o){o=o||{};return new Paragraph({children:[new TextRun({text:t||"",bold:o.bold||false,size:o.size||20,font:"Arial",color:o.color||"000000"})],alignment:o.align||AlignmentType.LEFT,spacing:{after:o.after||40}});}
+    function TC(ch,w,o){var opts={children:Array.isArray(ch)?ch:[ch],width:{size:w,type:WidthType.DXA},margins:CM,borders:BORDERS};if(o&&o.shading)opts.shading=o.shading;if(o&&o.span)opts.columnSpan=o.span;return new TableCell(opts);}
+
+    // Dynamic columns: INDEX | NAME | indicator codes... | FINAL GRADE
+    var indW = Math.min(600, Math.floor(5000 / Math.max(indicators.length, 1)));
+    var idxW = 600, nameW = 2600, gradeW = 900;
+    var totalIndW = indicators.length * indW;
+    if (idxW + nameW + totalIndW + gradeW > TW) { indW = Math.floor((TW - idxW - nameW - gradeW) / indicators.length); totalIndW = indicators.length * indW; }
+    var totalCols = 2 + indicators.length + 1;
+
+    var rows = [];
+    // School name
+    rows.push(new TableRow({children:[TC([P(school||"SCHOOL",{bold:true,size:24,color:"FFFFFF",align:AlignmentType.CENTER})],TW,{shading:GRAY,span:totalCols})]}));
+    // Title
+    rows.push(new TableRow({children:[TC([P("OUTCOME ASSESSMENT RECORD SHEET",{bold:true,size:22,align:AlignmentType.CENTER})],TW,{span:totalCols})]}));
+    // Term
+    rows.push(new TableRow({children:[TC([P(term,{bold:true,size:20,align:AlignmentType.CENTER})],TW,{span:totalCols})]}));
+    // Subject / Grade
+    rows.push(new TableRow({children:[
+      TC([P("SUBJECT:  "+sub,{bold:true,size:20})],Math.floor(TW*0.6),{span:Math.ceil(totalCols/2)}),
+      TC([P("Grade:  "+grade,{bold:true,size:20})],Math.floor(TW*0.4),{span:Math.floor(totalCols/2)})
+    ]}));
+    // Strand
+    rows.push(new TableRow({children:[TC([P("STRAND:   "+strand,{bold:true,size:18})],TW,{span:totalCols})]}));
+    // Substrand
+    rows.push(new TableRow({children:[TC([P("SUBSTRAND:   "+substrand,{bold:true,size:18})],TW,{span:totalCols})]}));
+    // Outcome
+    rows.push(new TableRow({children:[TC([P("OUTCOME:   "+code+" \u2014 "+outStmt,{size:18})],TW,{span:totalCols})]}));
+    // Indicators header
+    var indHdrCells = [TC([P("INDICATORS",{bold:true,size:18,align:AlignmentType.CENTER})],idxW+nameW,{shading:LGRAY,span:2})];
+    indicators.forEach(function(ind) { indHdrCells.push(TC([P(ind.code,{bold:true,size:14,align:AlignmentType.CENTER})],indW,{shading:LGRAY})); });
+    indHdrCells.push(TC([P("FINAL GRADE",{bold:true,size:14,align:AlignmentType.CENTER})],gradeW,{shading:LGRAY}));
+    rows.push(new TableRow({children:indHdrCells}));
+    // Indicator text row (abbreviated)
+    var indTxtCells = [TC([P("",{})],idxW+nameW,{span:2})];
+    indicators.forEach(function(ind) {
+      var short = ind.text.length > 40 ? ind.text.slice(0,40)+"..." : ind.text;
+      indTxtCells.push(TC([P(short,{size:12})],indW));
+    });
+    indTxtCells.push(TC([P("")],gradeW));
+    rows.push(new TableRow({children:indTxtCells}));
+    // Column headers: INDEX | NAME | codes | GRADE
+    var colHdr = [TC([P("INDEX",{bold:true,size:16,align:AlignmentType.CENTER})],idxW,{shading:LGRAY}),TC([P("NAME",{bold:true,size:16})],nameW,{shading:LGRAY})];
+    indicators.forEach(function(ind) { colHdr.push(TC([P(ind.code,{bold:true,size:12,align:AlignmentType.CENTER})],indW,{shading:LGRAY})); });
+    colHdr.push(TC([P("")],gradeW,{shading:LGRAY}));
+    rows.push(new TableRow({children:colHdr}));
+    // Student rows
+    for (var i = 1; i <= numStudents; i++) {
+      var cells = [TC([P(String(i),{size:16,align:AlignmentType.CENTER})],idxW),TC([P("")],nameW)];
+      indicators.forEach(function() { cells.push(TC([P("")],indW)); });
+      cells.push(TC([P("")],gradeW));
+      rows.push(new TableRow({height:{value:340,rule:"atLeast"},children:cells}));
+    }
+    // Summary
+    rows.push(new TableRow({children:[TC([P("No. of students achieved:",{bold:true,size:16})],idxW+nameW,{shading:LGRAY,span:2}),TC([P("")],totalIndW+gradeW,{span:indicators.length+1})]}));
+    rows.push(new TableRow({children:[TC([P("Fully Achieved (FA)",{size:16})],idxW+nameW,{span:2}),TC([P("")],totalIndW+gradeW,{span:indicators.length+1})]}));
+    rows.push(new TableRow({children:[TC([P("Mostly Achieved (MA)",{size:16})],idxW+nameW,{span:2}),TC([P("")],totalIndW+gradeW,{span:indicators.length+1})]}));
+    rows.push(new TableRow({children:[TC([P("Achieving (A)",{size:16})],idxW+nameW,{span:2}),TC([P("")],totalIndW+gradeW,{span:indicators.length+1})]}));
+    // Signature
+    rows.push(new TableRow({children:[TC([P("Checked by Leading Teacher: _________________________________",{size:16})],TW,{span:totalCols})]}));
+    rows.push(new TableRow({children:[
+      TC([P("Sign: ________________________",{size:16})],Math.floor(TW*0.5),{span:Math.ceil(totalCols/2)}),
+      TC([P("Date: ____________________",{size:16})],Math.floor(TW*0.5),{span:Math.floor(totalCols/2)})
+    ]}));
+
+    var doc = new Document({sections:[{properties:{page:{margin:{top:720,right:720,bottom:720,left:720}}},children:[new Table({width:{size:TW,type:WidthType.DXA},borders:BORDERS,rows:rows})]}]});
+    var blob = await Packer.toBlob(doc);
+    var url = URL.createObjectURL(blob);
+    var fname = code + "_Checklist.docx";
+    status.className = 'status done'; status.style.display = 'block';
+    status.innerHTML = '&#10003; Checklist ready! <a class="dl-btn" href="'+url+'" download="'+fname+'">&#11015; Download '+fname+'</a>';
+  } catch(e) {
+    status.className = 'status error'; status.style.display = 'block';
+    status.innerHTML = '&#9888; Error: ' + e.message;
+  }
+  btn.disabled = false;
+}
 
 // =====================================================================
 // SCHEME OF WORK — CASCADING STEP BUILDER
@@ -3475,9 +3900,9 @@ function addRowToScheme(){
     strand:d.strand||'', substrand:d.substrand||'',
     outCode:outCode, outStmt:d.out_stmt||'',
     indicators:indicators,
-    activity:document.getElementById('s-activity').value||'',
+    activity:document.getElementById('s-activity').value || (document.getElementById('activity-ai-result') ? document.getElementById('activity-ai-result').dataset.aiText || '' : ''),
     resources:getSelectedResources(),
-    assessment:document.getElementById('s-assessment').value||''
+    assessment:document.getElementById('s-assessment').value || (document.getElementById('assess-ai-result') ? document.getElementById('assess-ai-result').dataset.aiText || '' : '')'
   });
   renderSchemePreview();
   schResetKeepGradeSub();
