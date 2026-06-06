@@ -173,7 +173,12 @@ const server = http.createServer(async (req, res) => {
       if (ANTHROPIC_KEY) {
         const user = getSession(req);
         if (!user) return jsonRes(res, 401, { error: { message: 'Please log in to generate lesson plans.' } });
-        // Usage tracking is per-device (client-side localStorage)
+        // Check usage limit for free plan
+        if (user.plan === 'free' && user.usage >= user.limit) {
+          return jsonRes(res, 429, { error: { message: `Free plan limit reached (${user.limit} lesson plans). Please upgrade to Pro.` } });
+        }
+        // Increment usage
+        user.usage = (user.usage || 0) + 1;
       }
       const body = JSON.parse((await readBody(req)).toString());
       const apiKey = ANTHROPIC_KEY || req.headers['x-api-key'] || '';
