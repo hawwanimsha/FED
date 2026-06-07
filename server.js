@@ -92,21 +92,11 @@ function callAnthropic(body, apiKey) {
     const payload = JSON.stringify(body);
     const options = {
       hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
-      timeout: 60000,
       headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Length': Buffer.byteLength(payload) }
     };
     const chunks = [];
-    const req = https.request(options, res => {
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => {
-        try { resolve(JSON.parse(Buffer.concat(chunks).toString())); }
-        catch(e) { reject(new Error('Invalid JSON from Anthropic')); }
-      });
-    });
-    req.setTimeout(60000, () => { req.destroy(); reject(new Error('API timeout — Claude took too long. Please try again.')); });
-    req.on('error', reject);
-    req.write(payload);
-    req.end();
+    const req = https.request(options, res => { res.on('data', c => chunks.push(c)); res.on('end', () => { try { resolve(JSON.parse(Buffer.concat(chunks).toString())); } catch(e) { reject(new Error('Invalid JSON from Anthropic')); } }); });
+    req.on('error', reject); req.write(payload); req.end();
   });
 }
 function serveStatic(req, res) {
