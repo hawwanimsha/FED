@@ -92,11 +92,21 @@ function callAnthropic(body, apiKey) {
     const payload = JSON.stringify(body);
     const options = {
       hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
+      timeout: 60000,
       headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Length': Buffer.byteLength(payload) }
     };
     const chunks = [];
-    const req = https.request(options, res => { res.on('data', c => chunks.push(c)); res.on('end', () => { try { resolve(JSON.parse(Buffer.concat(chunks).toString())); } catch(e) { reject(new Error('Invalid JSON from Anthropic')); } }); });
-    req.on('error', reject); req.write(payload); req.end();
+    const req = https.request(options, res => {
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => {
+        try { resolve(JSON.parse(Buffer.concat(chunks).toString())); }
+        catch(e) { reject(new Error('Invalid JSON from Anthropic')); }
+      });
+    });
+    req.setTimeout(60000, () => { req.destroy(); reject(new Error('API timeout — Claude took too long. Please try again.')); });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
   });
 }
 function serveStatic(req, res) {
@@ -173,12 +183,7 @@ const server = http.createServer(async (req, res) => {
       if (ANTHROPIC_KEY) {
         const user = getSession(req);
         if (!user) return jsonRes(res, 401, { error: { message: 'Please log in to generate lesson plans.' } });
-        // Check usage limit for free plan
-        if (user.plan === 'free' && user.usage >= user.limit) {
-          return jsonRes(res, 429, { error: { message: `Free plan limit reached (${user.limit} lesson plans). Please upgrade to Pro.` } });
-        }
-        // Increment usage
-        user.usage = (user.usage || 0) + 1;
+        // Usage tracking is per-device (client-side localStorage)
       }
       const body = JSON.parse((await readBody(req)).toString());
       const apiKey = ANTHROPIC_KEY || req.headers['x-api-key'] || '';
