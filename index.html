@@ -3537,7 +3537,12 @@ async function doGenerate() {
   if(!inds.length){alert("Please select at least one indicator.");return;}
   var fname=buildFilename(currentSub,wk,ln);
   var btn=document.getElementById("gen-btn"); btn.disabled=true;
-  setStatus("gen-status","loading","<span class='spin'></span> Generating lesson plan... (usually 15-30 seconds)");
+  setStatus("gen-status","loading","<span class='spin'></span> Generating lesson plan... <span id='gen-timer'>0</span>s");
+  var genTimerStart = Date.now();
+  var genTimerInterval = setInterval(function() {
+    var el = document.getElementById('gen-timer');
+    if (el) el.textContent = Math.floor((Date.now() - genTimerStart) / 1000);
+  }, 1000);
   setProgress("gen-prog","gen-bar",20);
 
   var hasTemplate = !!activeTemplate;
@@ -3626,6 +3631,7 @@ async function doGenerate() {
     var b64=await blobToB64(blob);
     saveHist({ts:Date.now(),sub:currentSub,grade:grade,wk:wk,fname:fname,topic:topic,date:date,b64:b64});
     var url=URL.createObjectURL(blob);
+    clearInterval(genTimerInterval);
     // Increment per-device usage
     var du=parseInt(localStorage.getItem("boli_device_usage")||"0");
     localStorage.setItem("boli_device_usage",String(du+1));
@@ -3641,6 +3647,7 @@ async function doGenerate() {
       } catch(e2) {}
     }
   } catch(e) {
+    clearInterval(genTimerInterval);
     setStatus("gen-status","error","&#9888; Error: "+e.message);
   }
   btn.disabled=false;
