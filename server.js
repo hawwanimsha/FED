@@ -92,11 +92,21 @@ function callAnthropic(body, apiKey) {
     const payload = JSON.stringify(body);
     const options = {
       hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
+      timeout: 45000,
       headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Length': Buffer.byteLength(payload) }
     };
     const chunks = [];
-    const req = https.request(options, res => { res.on('data', c => chunks.push(c)); res.on('end', () => { try { resolve(JSON.parse(Buffer.concat(chunks).toString())); } catch(e) { reject(new Error('Invalid JSON from Anthropic')); } }); });
-    req.on('error', reject); req.write(payload); req.end();
+    const req = https.request(options, res => {
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => {
+        try { resolve(JSON.parse(Buffer.concat(chunks).toString())); }
+        catch(e) { reject(new Error('Invalid JSON from Anthropic')); }
+      });
+    });
+    req.setTimeout(45000, () => { req.destroy(); reject(new Error('API timeout — Claude took too long. Please try again.')); });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
   });
 }
 function serveStatic(req, res) {
@@ -196,7 +206,7 @@ const server = http.createServer(async (req, res) => {
       let structure = { sections: [], fields: {}, format: 'Custom template', preview: text.slice(0, 300) };
       if (apiKey) {
         try {
-          const aiRes = await callAnthropic({ model: 'claude-sonnet-4-5', max_tokens: 800, messages: [{ role: 'user', content: `Analyse this lesson plan template. Return ONLY valid JSON:\n{"sections":["section1","section2"],"format":"brief style description","preview":"first 200 chars"}\n\nTemplate:\n${text.slice(0, 2000)}` }] }, apiKey);
+          const aiRes = await callAnthropic({ model: 'claude-sonnet-4-6', max_tokens: 800, messages: [{ role: 'user', content: `Analyse this lesson plan template. Return ONLY valid JSON:\n{"sections":["section1","section2"],"format":"brief style description","preview":"first 200 chars"}\n\nTemplate:\n${text.slice(0, 2000)}` }] }, apiKey);
           const raw = aiRes.content[0].text.replace(/```json|```/g, '').trim();
           structure = JSON.parse(raw);
         } catch(e) { console.error('Template analysis error:', e.message); }
