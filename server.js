@@ -3,7 +3,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const busboy = require('busboy');
+// busboy loaded lazily when needed
 
 const PORT = parseInt(process.env.PORT) || 3579;
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
@@ -68,6 +68,7 @@ function jsonRes(res, status, data) {
 }
 function parseUpload(req) {
   return new Promise((resolve, reject) => {
+    const busboy = require('busboy');
     const bb = busboy({ headers: req.headers, limits: { fileSize: 10 * 1024 * 1024 } });
     const fields = {}; let fileBuffer = null, fileName = '', fileMime = '';
     bb.on('field', (n, v) => { fields[n] = v; });
@@ -79,10 +80,12 @@ function parseUpload(req) {
 }
 async function extractDocx(buffer) {
   const mammoth = require('mammoth');
+  // mammoth loaded lazily
   return (await mammoth.extractRawText({ buffer })).value;
 }
 async function extractPdf(buffer) {
   const pdfParse = require('pdf-parse');
+  // pdf-parse loaded lazily
   return (await pdfParse(buffer)).text;
 }
 function callAnthropic(body, apiKey) {
